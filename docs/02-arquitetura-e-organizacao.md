@@ -126,3 +126,14 @@ gtasks/
 4. O cache offline é apenas de leitura; não implementar fila de escritas ou sincronização bidirecional sem regras explícitas de conflito.
 5. Não bloquear o loop principal GTK com chamadas de rede ou manipular widgets em threads de trabalho.
 6. Testar seleção, criação e conclusão de tarefas nas fontes local e Google após mudanças no roteamento.
+
+## 7. Preferências persistentes
+
+O GTasks usa `Gio.Settings` com o esquema `io.github.rafatosta.gtasks`, instalado via Meson no diretório padrão de esquemas GLib. O diálogo é um `Adw.PreferencesDialog` separado da `MainWindow`.
+
+- `sync-on-startup` controla a sincronização automática ao abrir (não impede a descoberta das contas e dos dados em cache).
+- `sync-interval` controla o temporizador de atualização durante a execução (0, 5, 15, 30 ou 60 minutos). Não instala serviço residente nem sincroniza quando o aplicativo está fechado.
+- `show-completed` filtra apenas a apresentação; não apaga tarefas concluídas do SQLite ou Google.
+- `restore-last-list` recupera a lista e a fonte salvas pelas chaves `last-source` e `last-list-id`. Caso a lista já não exista, nenhuma seleção é forçada.
+
+As preferências são persistidas no backend do GSettings e não devem ser confundidas com as tabelas locais nem com o cache de contas Google.

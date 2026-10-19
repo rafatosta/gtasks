@@ -21,4 +21,15 @@ flatpak run io.github.rafatosta.gtasks
 
 O GitHub Actions executa os testes e constrói um Flatpak de desenvolvimento. Não publica releases. A integração GOA e as permissões ainda precisam de verificação com uma conta Google real no Fedora.
 
+## Preferências
+
+Abra **Menu principal → Preferências** ou pressione **Ctrl+,**. O GTasks salva as escolhas com GSettings:
+
+- Sincronização das contas Google na inicialização (ativada por padrão).
+- Atualização periódica enquanto o aplicativo estiver aberto (desativada, 5, 15, 30 ou 60 minutos; padrão: 15).
+- Exibição de tarefas concluídas (ativada por padrão).
+- Restauração da última lista selecionada (ativada por padrão).
+
+O cache offline permanece ativo para que as listas Google já sincronizadas possam ser consultadas sem conexão. As alterações nas contas Google continuam exigindo internet.
+
 Arquitetura e decisões: [docs/](docs/). Licença: GPL-3.0-or-later.

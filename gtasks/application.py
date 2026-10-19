@@ -17,6 +17,7 @@ from gtasks.repositories.registry import RepositoryRegistry
 from gtasks.services.task_service import TaskService
 from gtasks.views.main_window import MainWindow
 from gtasks.views.about_dialog import create_about_dialog
+from gtasks.views.preferences_dialog import create_preferences_dialog
 
 
 class GTasksApplication(Adw.Application):
@@ -31,6 +32,13 @@ class GTasksApplication(Adw.Application):
         storage = SQLiteTaskRepository(database)
         cache = RemoteTaskCache(database)
         auth = GoaAuthProvider()
+
+        self._settings = Gio.Settings.new("io.github.rafatosta.gtasks")
+
+        preferences_action = Gio.SimpleAction.new("preferences", None)
+        preferences_action.connect("activate", self._show_preferences)
+        self.add_action(preferences_action)
+        self.set_accels_for_action("app.preferences", ["<Primary>comma"])
 
         about_action = Gio.SimpleAction.new("about", None)
         about_action.connect("activate", self._show_about)
@@ -56,7 +64,9 @@ class GTasksApplication(Adw.Application):
     def do_activate(self) -> None:
         window = self.props.active_window
         if window is None:
-            window = MainWindow(application=self, controller=self._controller)
+            window = MainWindow(
+                application=self, controller=self._controller, settings=self._settings
+            )
         window.present()
 
     def _show_about(self, _action: Gio.SimpleAction, _parameter) -> None:
@@ -65,3 +75,8 @@ class GTasksApplication(Adw.Application):
             return
 
         create_about_dialog(version=self.VERSION).present(window)
+
+    def _show_preferences(self, _action: Gio.SimpleAction, _parameter) -> None:
+        window = self.props.active_window
+        if window is not None:
+            create_preferences_dialog(self._settings).present(window)

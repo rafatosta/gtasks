@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="io.github.rafatosta.gtasks" path="/io/github/rafatosta/gtasks/">
+    <key name="sync-on-startup" type="b">
+      <default>true</default>
+      <summary>Synchronize Google accounts on startup</summary>
+    </key>
+    <key name="sync-interval" type="i">
+      <default>15</default>
+      <summary>Minutes between background synchronizations (0 disables it)</summary>
+    </key>
+    <key name="show-completed" type="b">
+      <default>true</default>
+      <summary>Display completed tasks</summary>
+    </key>
+    <key name="restore-last-list" type="b">
+      <default>true</default>
+      <summary>Restore the previously selected list</summary>
+    </key>
+    <key name="last-source" type="s">
+      <default>''</default>
+      <summary>Source of the last selected list</summary>
+    </key>
+    <key name="last-list-id" type="s">
+      <default>''</default>
+      <summary>Identifier of the last selected list</summary>
+    </key>
+  </schema>
+</schemalist>

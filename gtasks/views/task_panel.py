@@ -87,10 +87,12 @@ class TaskPanel(Gtk.Box):
         self._clear_rows()
         self._empty_label.set_label(message)
 
-    def show_tasks(self, tasks: list[Task]) -> None:
+    def show_tasks(
+        self, tasks: list[Task], empty_message: str = "Esta lista não tem tarefas"
+    ) -> None:
         self._tasks = list(tasks)
         self._clear_rows()
-        self._empty_label.set_label("Esta lista não tem tarefas")
+        self._empty_label.set_label(empty_message)
         for task in tasks:
             row = Gtk.ListBoxRow()
             box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=12)
