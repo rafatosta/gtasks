@@ -27,6 +27,6 @@ jobs:
           build-dir: build-dir
       - name: Verify installed GSettings schema
         run: >-
-          flatpak-builder --disable-rofiles-fuse --run build-dir io.github.rafatosta.gtasks.json
+          flatpak-builder --run build-dir io.github.rafatosta.gtasks.json
           gsettings --schemadir /app/share/glib-2.0/schemas
           list-keys io.github.rafatosta.gtasks
