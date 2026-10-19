@@ -63,12 +63,21 @@ class TasksTest(unittest.TestCase):
             self.assertTrue(reopened.get_tasks()[0].completed)
 
     def test_list_sources_can_coexist(self) -> None:
-        local = InMemoryTaskRepository()
-        google = InMemoryTaskRepository()
+        local = InMemoryTaskRepository(source="local")
+        google = InMemoryTaskRepository(source="google")
         service = TaskService({"local": local, "google": google})
-        google.create_list("Remota")
-        self.assertEqual(len(service.get_lists()), 2 if local.list_lists() else 1)
-        self.assertTrue(service.has_source("google"))
+        controller = TaskController(service)
+
+        personal = controller.create_list("Pessoal", "local")
+        controller.create_task("Comprar pão")
+        work = controller.create_list("Trabalho", "google")
+        controller.create_task("Reunião")
+
+        self.assertEqual([item.source for item in controller.get_lists()], ["local", "google"])
+        controller.select_list(personal.id, "local")
+        self.assertEqual([task.title for task in controller.get_tasks()], ["Comprar pão"])
+        controller.select_list(work.id, "google")
+        self.assertEqual([task.title for task in controller.get_tasks()], ["Reunião"])
 
 
 if __name__ == "__main__":

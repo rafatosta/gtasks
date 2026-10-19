@@ -8,7 +8,8 @@ from gtasks.models.task_list import TaskList
 class InMemoryTaskRepository:
     """Temporary adapter: data exists only while the application is running."""
 
-    def __init__(self) -> None:
+    def __init__(self, source: str = "local") -> None:
+        self._source = source
         self._lists: dict[str, TaskList] = {}
         self._tasks: dict[str, list[Task]] = {}
 
@@ -16,7 +17,7 @@ class InMemoryTaskRepository:
         return list(self._lists.values())
 
     def create_list(self, name: str) -> TaskList:
-        task_list = TaskList(id=str(uuid4()), name=name)
+        task_list = TaskList(id=str(uuid4()), name=name, source=self._source)
         self._lists[task_list.id] = task_list
         self._tasks[task_list.id] = []
         return task_list
