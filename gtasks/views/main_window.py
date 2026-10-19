@@ -3,22 +3,22 @@ import gi
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 
-from gi.repository import Adw, Gtk, Pango
+from gi.repository import Adw, Gtk
 
 from gtasks.controllers.task_controller import TaskController
 from gtasks.models.task import Task
+from gtasks.views.list_sidebar import ListSidebar
+from gtasks.views.task_panel import TaskPanel
 
 
 class MainWindow(Adw.ApplicationWindow):
+    """Composes the sidebar and task panel, connecting them to the controller."""
+
     def __init__(self, application: Adw.Application, controller: TaskController) -> None:
         super().__init__(application=application, title="GTasks")
         self._controller = controller
-        self._rows: dict[Gtk.ListBoxRow, tuple[str, str]] = {}
-        self._groups: dict[str, Gtk.ListBox] = {}
-        self._refreshing = False
         self._closed = False
         self._task_generation = 0
-        self._last_tasks: list[Task] = []
         self._accounts_generation = 0
         self.set_default_size(900, 560)
         self.connect("close-request", self._on_close)
@@ -31,17 +31,26 @@ class MainWindow(Adw.ApplicationWindow):
         header.pack_end(refresh_button)
         toolbar.add_top_bar(header)
 
+        self._sidebar = ListSidebar(
+            on_create_list=self._show_create_list_dialog,
+            on_select_list=self._select_list,
+        )
+        self._task_panel = TaskPanel(
+            on_add_task=self._add_task,
+            on_toggle_task=self._toggle_task,
+        )
+
         layout = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
-        layout.append(self._create_sidebar())
+        layout.append(self._sidebar)
         layout.append(Gtk.Separator(orientation=Gtk.Orientation.VERTICAL))
-        layout.append(self._create_content())
+        layout.append(self._task_panel)
         toolbar.set_content(layout)
         self.set_content(toolbar)
 
         self._refresh_lists()
         self._refresh_google()
 
-    def _on_close(self, _window) -> bool:
+    def _on_close(self, _window: Adw.ApplicationWindow) -> bool:
         self._closed = True
         self._controller.close()
         return False
@@ -49,11 +58,11 @@ class MainWindow(Adw.ApplicationWindow):
     def _request(self, submit, callback, message: str, on_error=None) -> None:
         if self._closed:
             return
-        self._status.set_label(message)
+        self._sidebar.set_status(message)
 
         def succeeded(result) -> None:
             if not self._closed:
-                self._status.set_label("")
+                self._sidebar.set_status("")
                 callback(result)
 
         def failed(error: Exception) -> None:
@@ -62,154 +71,20 @@ class MainWindow(Adw.ApplicationWindow):
             if on_error is not None:
                 on_error()
             if isinstance(error, (ValueError, RuntimeError, KeyError)):
-                self._status.set_label(str(error))
+                self._sidebar.set_status(str(error))
             else:
-                self._status.set_label("Não foi possível concluir a operação.")
+                self._sidebar.set_status("Não foi possível concluir a operação.")
 
         submit(succeeded, failed)
 
-    def _create_sidebar(self) -> Gtk.Widget:
-        sidebar = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=18)
-        sidebar.set_size_request(250, -1)
-        sidebar.set_margin_top(18)
-        sidebar.set_margin_start(12)
-        sidebar.set_margin_end(12)
-        sidebar.set_margin_bottom(12)
-
-        local_group = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=8)
-        local_header = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
-        local_name = Gtk.Label(label="Neste dispositivo", xalign=0, hexpand=True)
-        local_name.add_css_class("heading")
-        local_header.append(local_name)
-
-        local_add = Gtk.Button(icon_name="list-add-symbolic")
-        local_add.add_css_class("flat")
-        local_add.set_tooltip_text("Criar lista local")
-        local_add.connect("clicked", self._show_create_list_dialog, "local")
-        local_header.append(local_add)
-        local_group.append(local_header)
-
-        local_box = Gtk.ListBox()
-        local_box.set_selection_mode(Gtk.SelectionMode.SINGLE)
-        local_box.add_css_class("navigation-sidebar")
-        local_box.connect("row-selected", self._on_list_selected)
-        self._groups["local"] = local_box
-        local_group.append(local_box)
-        sidebar.append(local_group)
-
-        self._google_group = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=12)
-        google_header = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
-        google_header.append(Gtk.Image.new_from_icon_name("network-server-symbolic"))
-        google_name = Gtk.Label(label="Google Tasks", xalign=0, hexpand=True)
-        google_name.add_css_class("heading")
-        google_header.append(google_name)
-        self._google_group.append(google_header)
-
-        self._google_accounts = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=12)
-        self._google_group.append(self._google_accounts)
-        sidebar.append(self._google_group)
-
-        self._status = Gtk.Label(label="", xalign=0, wrap=True)
-        self._status.add_css_class("dim-label")
-        sidebar.append(self._status)
-
-        scroll = Gtk.ScrolledWindow(vexpand=True)
-        scroll.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
-        scroll.set_child(sidebar)
-        return scroll
-
-    def _build_account_groups(self, accounts: list[tuple[str, str]]) -> None:
-        self._refreshing = True
-        for source in list(self._groups):
-            if source != "local":
-                del self._groups[source]
-        while child := self._google_accounts.get_first_child():
-            self._google_accounts.remove(child)
-
-        if not accounts:
-            hint = Gtk.Label(
-                label="Adicione uma conta Google em Configurações → Contas Online.",
-                xalign=0,
-                wrap=True,
-            )
-            hint.add_css_class("dim-label")
-            self._google_accounts.append(hint)
-
-        for source, identity in accounts:
-            group = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=8)
-            header = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
-
-            account_label = Gtk.Label(label=identity, xalign=0, hexpand=True)
-            account_label.set_ellipsize(Pango.EllipsizeMode.END)
-            account_label.add_css_class("dim-label")
-            account_label.set_tooltip_text(identity)
-            header.append(account_label)
-
-            add = Gtk.Button(icon_name="list-add-symbolic")
-            add.add_css_class("flat")
-            add.set_tooltip_text("Criar lista no Google Tasks")
-            add.connect("clicked", self._show_create_list_dialog, source)
-            header.append(add)
-            group.append(header)
-
-            list_box = Gtk.ListBox()
-            list_box.set_selection_mode(Gtk.SelectionMode.SINGLE)
-            list_box.add_css_class("navigation-sidebar")
-            list_box.connect("row-selected", self._on_list_selected)
-            self._groups[source] = list_box
-            group.append(list_box)
-            self._google_accounts.append(group)
-        self._refreshing = False
-
-    def _create_content(self) -> Gtk.Widget:
-        content = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=16)
-        content.set_hexpand(True)
-        content.set_margin_top(24)
-        content.set_margin_bottom(24)
-        content.set_margin_start(24)
-        content.set_margin_end(24)
-
-        self._title = Gtk.Label(label="Selecione uma lista", xalign=0)
-        self._title.add_css_class("title-1")
-        content.append(self._title)
-
-        self._source_label = Gtk.Label(xalign=0)
-        self._source_label.add_css_class("dim-label")
-        content.append(self._source_label)
-
-        add_row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
-        self._task_entry = Gtk.Entry(placeholder_text="Adicionar uma tarefa", hexpand=True)
-        self._task_entry.connect("activate", self._add_task)
-        add_row.append(self._task_entry)
-
-        self._add_task_button = Gtk.Button(icon_name="list-add-symbolic")
-        self._add_task_button.set_tooltip_text("Adicionar tarefa")
-        self._add_task_button.connect("clicked", self._add_task)
-        add_row.append(self._add_task_button)
-        content.append(add_row)
-
-        self._tasks_box = Gtk.ListBox()
-        self._tasks_box.set_selection_mode(Gtk.SelectionMode.NONE)
-        self._tasks_box.add_css_class("boxed-list")
-        self._empty_label = Gtk.Label(label="Crie uma lista para começar")
-        self._empty_label.add_css_class("dim-label")
-        self._empty_label.set_margin_top(40)
-        self._tasks_box.set_placeholder(self._empty_label)
-
-        scroll = Gtk.ScrolledWindow(vexpand=True)
-        scroll.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
-        scroll.set_child(self._tasks_box)
-        content.append(scroll)
-        return content
-
-    def _refresh_google(self, _button=None) -> None:
+    def _refresh_google(self, _button: Gtk.Button | None = None) -> None:
         self._accounts_generation += 1
         generation = self._accounts_generation
 
-        def found(accounts) -> None:
+        def found(accounts: list[tuple[str, str]]) -> None:
             if generation != self._accounts_generation:
                 return
-            self._build_account_groups(accounts)
+            self._sidebar.set_accounts(accounts)
             self._refresh_lists()
             for source, _identity in accounts:
                 self._load_remote_lists(source)
@@ -221,30 +96,27 @@ class MainWindow(Adw.ApplicationWindow):
         )
 
     def _load_remote_lists(self, source: str) -> None:
-        def loaded(_lists) -> None:
-            self._refresh_lists()
-
         self._request(
             lambda success, error: self._controller.load_remote_lists_async(
                 source, success, error
             ),
-            loaded,
+            lambda _lists: self._refresh_lists(),
             "Atualizando listas do Google...",
         )
 
-    def _show_create_list_dialog(self, _button: Gtk.Button, source: str) -> None:
+    def _show_create_list_dialog(self, source: str) -> None:
         dialog = Adw.AlertDialog.new("Nova lista", "Escolha um nome para a lista.")
-        name_entry = Gtk.Entry(text="Nova lista")
-        name_entry.select_region(0, -1)
-        dialog.set_extra_child(name_entry)
+        entry = Gtk.Entry(text="Nova lista")
+        entry.select_region(0, -1)
+        dialog.set_extra_child(entry)
         dialog.add_response("cancel", "Cancelar")
         dialog.add_response("create", "Criar")
         dialog.set_response_appearance("create", Adw.ResponseAppearance.SUGGESTED)
         dialog.set_default_response("create")
-        dialog.connect("response", self._on_create_list_response, name_entry, source)
+        dialog.connect("response", self._create_list, entry, source)
         dialog.present(self)
 
-    def _on_create_list_response(
+    def _create_list(
         self, _dialog: Adw.AlertDialog, response: str, entry: Gtk.Entry, source: str
     ) -> None:
         if response != "create" or not entry.get_text().strip():
@@ -258,63 +130,32 @@ class MainWindow(Adw.ApplicationWindow):
             "Criando lista...",
         )
 
-    def _on_list_selected(self, _box: Gtk.ListBox, row: Gtk.ListBoxRow | None) -> None:
-        if self._refreshing or row is None:
-            return
-        source, list_id = self._rows[row]
+    def _select_list(self, source: str, list_id: str) -> None:
         self._controller.select_list(list_id, source)
-        self._refreshing = True
-        for other_source, box in self._groups.items():
-            if other_source != source:
-                box.unselect_all()
-        self._refreshing = False
         self._refresh_tasks()
 
     def _refresh_lists(self) -> None:
-        self._refreshing = True
-        self._rows.clear()
-        for box in self._groups.values():
-            while row := box.get_row_at_index(0):
-                box.remove(row)
-
-        selected_row = None
-        for task_list in self._controller.get_lists():
-            box = self._groups.get(task_list.source)
-            if box is None:
-                continue
-            row = Gtk.ListBoxRow()
-            name = Gtk.Label(label=task_list.name, xalign=0)
-            name.set_margin_top(10)
-            name.set_margin_bottom(10)
-            name.set_margin_start(12)
-            name.set_margin_end(12)
-            row.set_child(name)
-            self._rows[row] = (task_list.source, task_list.id)
-            box.append(row)
-            if self._controller.selected_list == task_list:
-                selected_row = (box, row)
-
-        if selected_row is not None:
-            selected_row[0].select_row(selected_row[1])
-        self._refreshing = False
+        self._sidebar.set_lists(
+            self._controller.get_lists(),
+            self._controller.selected_list,
+        )
         self._refresh_tasks()
 
-    def _add_task(self, _widget: Gtk.Widget) -> None:
+    def _add_task(self, title: str) -> None:
         selected = self._controller.selected_list
-        title = self._task_entry.get_text().strip()
-        if not title or selected is None:
+        if selected is None:
             return
-        self._task_entry.set_sensitive(False)
-        self._add_task_button.set_sensitive(False)
+        self._task_panel.set_input_enabled(False)
 
         def created(_task: Task) -> None:
             if self._controller.selected_list == selected:
-                self._task_entry.set_text("")
+                self._task_panel.clear_entry()
                 self._refresh_tasks()
 
         def failed() -> None:
-            self._task_entry.set_sensitive(True)
-            self._add_task_button.set_sensitive(True)
+            self._task_panel.set_input_enabled(
+                self._controller.selected_list is not None
+            )
 
         self._request(
             lambda success, error: self._controller.create_task_async(
@@ -325,16 +166,14 @@ class MainWindow(Adw.ApplicationWindow):
             on_error=failed,
         )
 
-    def _on_task_toggled(self, check: Gtk.CheckButton, task_id: str) -> None:
+    def _toggle_task(self, task_id: str, completed: bool) -> None:
         selected = self._controller.selected_list
         if selected is None:
             return
-        completed = check.get_active()
-        check.set_sensitive(False)
 
         def failed() -> None:
             if self._controller.selected_list == selected:
-                self._render_tasks(self._last_tasks)
+                self._task_panel.restore_tasks()
 
         self._request(
             lambda success, error: self._controller.set_completed_async(
@@ -347,35 +186,24 @@ class MainWindow(Adw.ApplicationWindow):
 
     def _refresh_tasks(self) -> None:
         self._task_generation += 1
-        self._last_tasks = []
         generation = self._task_generation
         selected = self._controller.selected_list
-        self._title.set_label(selected.name if selected else "Selecione uma lista")
-        self._source_label.set_label(
-            ("Salvo neste dispositivo" if selected.source == "local" else "Google Tasks")
-            if selected else ""
-        )
-        self._task_entry.set_sensitive(selected is not None)
-        self._add_task_button.set_sensitive(selected is not None)
-
-        while row := self._tasks_box.get_row_at_index(0):
-            self._tasks_box.remove(row)
+        self._task_panel.set_list(selected)
 
         if selected is None:
-            self._empty_label.set_label("Crie uma lista para começar")
+            self._task_panel.show_message("Crie uma lista para começar")
             return
-        self._empty_label.set_label("Carregando tarefas...")
+        self._task_panel.show_message("Carregando tarefas...")
 
         def loaded(tasks: list[Task]) -> None:
             if generation != self._task_generation:
                 return
-            if self._controller.selected_list != selected:
-                return
-            self._render_tasks(tasks)
+            if self._controller.selected_list == selected:
+                self._task_panel.show_tasks(tasks)
 
         def failed() -> None:
-            if self._controller.selected_list == selected:
-                self._empty_label.set_label(
+            if generation == self._task_generation:
+                self._task_panel.show_message(
                     "Não foi possível carregar as tarefas. Tente atualizar."
                 )
 
@@ -387,29 +215,3 @@ class MainWindow(Adw.ApplicationWindow):
             "Carregando tarefas...",
             on_error=failed,
         )
-
-    def _render_tasks(self, tasks: list[Task]) -> None:
-        self._last_tasks = list(tasks)
-        self._empty_label.set_label("Esta lista não tem tarefas")
-        while row := self._tasks_box.get_row_at_index(0):
-            self._tasks_box.remove(row)
-
-        for task in tasks:
-            row = Gtk.ListBoxRow()
-            box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=12)
-            box.set_margin_top(10)
-            box.set_margin_bottom(10)
-            box.set_margin_start(12)
-            box.set_margin_end(12)
-
-            check = Gtk.CheckButton(active=task.completed)
-            # Pass the desired status from the UI thread, not the worker thread.
-            check.connect("toggled", self._on_task_toggled, task.id)
-            box.append(check)
-
-            title = Gtk.Label(label=task.title, xalign=0, hexpand=True, wrap=True)
-            if task.completed:
-                title.add_css_class("dim-label")
-            box.append(title)
-            row.set_child(box)
-            self._tasks_box.append(row)

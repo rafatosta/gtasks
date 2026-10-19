@@ -10,6 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - run: python3 -m compileall -q gtasks
       - run: python3 -m unittest discover -s tests -v
 
   build:
