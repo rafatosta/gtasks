@@ -1,113 +1,157 @@
 # GTasks
 
-Aplicativo nativo de tarefas para GNOME (Python, GTK4 e libadwaita).
+Organize suas tarefas no GNOME, com listas salvas no computador e acesso às suas
+listas do Google Tasks no mesmo aplicativo.
 
-- **Neste dispositivo:** listas e tarefas persistidas localmente em SQLite.
-- **Google Tasks:** listas da conta Google configurada em **Configurações → Contas Online**, com leitura e gravação diretas na API. Contas distintas são mantidas separadas.
-- O aplicativo mantém um cache SQLite para **consultar listas e tarefas Google offline**, atualizado em segundo plano ao iniciar e ao clicar em atualizar. Criar e alterar tarefas Google ainda exige conexão; não há fila de edições offline nem transferência automática entre fontes.
+Use o GTasks para planejar a semana, separar assuntos em listas e acompanhar o
+que já foi feito. Você pode começar sem uma conta Google e conectá-la depois.
 
-## Executar no GNOME Builder
+![GTasks com listas, tarefas, datas e subtarefas](data/screenshots/tasks-pt_BR.png)
 
-Abra ou clone `https://github.com/rafatosta/gtasks.git` no Builder e clique em **Run Project**. Configure sua conta Google no GNOME para testar a integração real.
+*As capturas mostram tarefas e uma conta fictícias, usadas apenas para demonstração.*
 
-Se uma compilação anterior encerrar com `Settings schema 'io.github.rafatosta.gtasks' is not installed`, use **Rebuild Project** no Builder e execute novamente. A instalação Meson compila os esquemas GSettings no prefixo do aplicativo (`/app` no Flatpak). Não é necessário apagar as preferências nem o diretório de dados do aplicativo.
+## O que você pode fazer
 
-## Executar pelo Flatpak
+### Organizar suas listas
 
-```sh
-flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-flatpak install -y flathub org.gnome.Sdk//51 org.gnome.Platform//51
-flatpak-builder --user --install --force-clean build-dir io.github.rafatosta.gtasks.json
-flatpak run io.github.rafatosta.gtasks
-```
+- Criar listas para trabalho, estudos, compras e outros assuntos.
+- Renomear ou excluir uma lista pelo menu **⋮** ao lado do nome.
+- Manter listas só no computador, na seção **Neste dispositivo**.
+- Acessar listas de diferentes contas Google, separadas por conta.
 
-O GitHub Actions executa os testes e constrói um Flatpak de desenvolvimento. Não publica releases. A integração GOA e as permissões ainda precisam de verificação com uma conta Google real no Fedora.
+Excluir uma lista também exclui suas tarefas. O aplicativo pede confirmação antes
+de continuar. A última lista de uma conta Google não pode ser removida.
 
-## Idioma da interface
+### Cuidar das tarefas
 
-O arquivo `.flatpak` distribuído pelo GitHub inclui os catálogos de tradução
-no próprio pacote, sem depender de uma extensão `.Locale` separada.
+- **Adicionar:** digite no campo acima da lista e pressione Enter ou clique em **+**.
+- **Concluir ou reabrir:** clique na caixa de seleção ao lado da tarefa.
+- **Ver opções:** clique na tarefa ou no menu **⋮**.
+- **Editar:** dê um duplo clique na tarefa ou escolha a opção de edição no menu.
+- **Detalhar:** altere o título e escreva observações, instruções ou outras informações.
+- **Definir uma data:** escolha um dia no calendário ou use os botões **Hoje** e **Amanhã**. Também é possível remover a data.
+- **Criar subtarefas:** divida uma tarefa em passos menores. Cada subtarefa indica a qual tarefa pertence.
+- **Mover:** transfira tarefas entre listas do computador ou entre listas da mesma conta Google.
+- **Excluir:** remova uma tarefa e suas subtarefas, após confirmar.
 
-A interface acompanha o idioma do sistema. O código usa inglês americano como
-origem, com tradução em português brasileiro no catálogo `po/pt_BR.po`. Quando
-não existe tradução para o idioma escolhido, o aplicativo mostra o texto em
-inglês. As datas seguem a configuração regional do sistema.
+Clicar no texto da tarefa abre suas opções; só a caixa de seleção muda o estado
+de conclusão. Se houver um erro ao salvar no editor, o texto digitado permanece
+aberto para você tentar novamente.
 
-Os nomes e textos das tarefas e listas permanecem como foram digitados. O idioma
-do corretor ortográfico é uma preferência separada. Instruções para atualizar e
-testar traduções estão em [Internacionalização](docs/04-internacionalizacao.md).
+![Editor de tarefa com detalhes e data](data/screenshots/editor-pt_BR.png)
 
-## Opções das tarefas
+### Escrever com ajuda do corretor
 
-No menu **⋮** de cada tarefa é possível:
+O corretor ortográfico funciona nos campos de texto: novas tarefas, títulos,
+detalhes, nomes de listas e subtarefas. Palavras com possíveis erros ficam
+sublinhadas. Clique com o botão direito para ver sugestões, ignorar uma palavra,
+adicioná-la ao dicionário pessoal ou escolher outro idioma.
 
-- Editar título e detalhes e definir ou remover uma **data**, com calendário e
-  botões **Hoje** e **Amanhã**.
-- Adicionar uma subtarefa e consultar sua relação com a tarefa principal.
-- Mover a tarefa para outra lista da **mesma conta** ou entre listas locais.
-- Excluir a tarefa e suas subtarefas, após confirmação.
+O texto só é alterado quando você escolhe uma sugestão. A verificação funciona
+sem internet, desde que o dicionário esteja disponível no sistema. Você pode
+ativá-la ou desativá-la em **Preferências → Escrita → Verificar ortografia**.
 
-Os detalhes, a data e a relação entre subtarefas são preservados no banco e no
-cache offline. Alterações nas contas Google exigem conexão. O editor mantém o
-texto digitado caso ocorra um erro ao salvar. Os bancos existentes são atualizados
-sem apagar listas ou tarefas.
+## Como funciona a integração com o Google
 
-A data do campo `due` da API é o dia programado, sem horário. Não é um prazo
-completo como os recursos adicionais do site. Estrelas, edição de recorrência e
-anexos ficam fora desta implementação porque a API pública não oferece campos
-editáveis equivalentes. Os detalhes de tarefas atribuídas pelo Google permanecem
-somente para leitura; a confirmação de exclusão informa o efeito na origem.
+O GTasks utiliza as contas Google cadastradas nas **Contas Online** do GNOME.
+Você faz a autorização nas configurações do sistema; não precisa digitar sua
+senha Google no GTasks.
 
-Referências: [campos de tarefas](https://developers.google.com/workspace/tasks/reference/rest/v1/tasks)
-e [movimentação entre listas](https://developers.google.com/workspace/tasks/reference/rest/v1/tasks/move).
+1. Abra **Configurações → Contas Online** no GNOME.
+2. Adicione sua conta Google e conclua a autorização.
+3. Abra o GTasks ou clique no botão de atualização na página de listas.
+4. Escolha uma lista na seção **Google Tasks**, abaixo da conta desejada.
 
-## Correção ortográfica
+As alterações feitas nessas listas são enviadas à sua conta Google e podem ser
+vistas nos outros lugares em que você usa o Google Tasks. O GTasks também busca
+as mudanças feitas fora do aplicativo ao atualizar. Em **Preferências**, você
+escolhe se quer atualizar ao abrir e com qual frequência verificar mudanças
+enquanto o aplicativo estiver aberto.
 
-Todos os campos editáveis destacam palavras com possíveis erros: inclusão rápida
-de tarefas, títulos, detalhes, nomes de listas e títulos de subtarefas.
-Use o botão direito para ver sugestões, ignorar palavras, adicionar ao dicionário
-pessoal ou escolher outro idioma. O corretor começa em **português brasileiro**,
-quando esse dicionário está disponível, e funciona sem conexão. O texto só muda
-quando uma sugestão é escolhida.
+Se a conta precisar de uma nova autorização, confira sua situação em
+**Configurações → Contas Online** e tente atualizar novamente. A integração
+depende desse recurso do GNOME e do acesso autorizado ao Google Tasks.
 
-Em **Preferências → Escrita → Verificar ortografia**, é possível ativar ou
-desativar a verificação. Essa escolha e o idioma do menu são salvos e compartilhados entre todos os
-campos abertos.
+### O que funciona sem internet
 
-A integração usa GtkSourceView 5 e libspelling 0.4.10. O manifesto Flatpak inclui
-a libspelling; os dicionários vêm dos idiomas instalados do runtime GNOME. Em uma
-instalação nativa, instale também o dicionário desejado (por exemplo,
-`hunspell-pt-BR` no Fedora). Sem o dicionário selecionado, o corretor usa o padrão
-disponível no sistema. A compilação do Flatpak com essa dependência ainda precisa
-ser validada; a integração foi testada na instalação nativa.
+| Onde estão as tarefas? | O que você pode fazer sem conexão? |
+| --- | --- |
+| **Neste dispositivo** | Criar, consultar, editar, concluir, mover e excluir listas e tarefas. |
+| **Google Tasks** | Consultar as listas e tarefas que já foram sincronizadas. Para criar ou alterar itens, é preciso conexão. |
+
+As listas locais ficam no computador e não são enviadas automaticamente ao
+Google. O aplicativo não transfere tarefas entre contas diferentes nem entre as
+listas locais e o Google. Edições de tarefas Google não ficam em uma fila para
+envio posterior: faça essas alterações quando estiver conectado.
+
+### Diferenças em relação ao site do Google
+
+O GTasks oferece títulos, detalhes, datas, subtarefas, conclusão, movimentação e
+exclusão. Alguns recursos do site do Google ainda não estão disponíveis aqui:
+estrelas, anexos, edição de repetição e agendamento com horário. A data da tarefa
+representa apenas o dia escolhido, sem um lembrete com hora marcada.
+
+Tarefas atribuídas por outros serviços Google podem ter restrições de edição.
+Se uma exclusão também afetar a tarefa em sua origem, o aplicativo informa isso
+na confirmação.
+
+## Uma interface que acompanha sua janela
+
+Em uma janela ampla, as listas e tarefas aparecem lado a lado. Ao reduzir a
+janela, o GTasks mostra uma página por vez: escolha uma lista para ver suas
+tarefas e use o botão de voltar para retornar às listas.
+
+[Veja a captura da janela compacta](data/screenshots/compact-pt_BR.png).
+
+## Deixe do seu jeito
+
+Abra **Menu principal → Preferências** ou pressione **Ctrl+,** para escolher:
+
+- Se as contas Google devem ser atualizadas ao abrir o aplicativo.
+- O intervalo de atualização automática: desativado, 5, 15, 30 ou 60 minutos.
+- Se as tarefas concluídas devem aparecer junto das pendentes.
+- Se a última lista usada deve ser reaberta ao iniciar.
+- Se o corretor ortográfico deve ficar ativado.
+
+Suas escolhas ficam salvas para a próxima vez. A interface acompanha o idioma do
+sistema, com inglês e português brasileiro disponíveis. As datas seguem o formato
+da sua região. O texto das listas e tarefas permanece como você escreveu; o
+idioma do dicionário pode ser escolhido separadamente.
 
 ## Atalhos de teclado
 
-Abra **Menu principal → Atalhos de teclado** para consultar os atalhos.
-
 | Atalho | Ação |
 | --- | --- |
-| Ctrl+Q | Sair do aplicativo |
-| Ctrl+W | Fechar o diálogo aberto ou a janela |
-| Ctrl+, | Abrir preferências |
-| Ctrl+? ou Ctrl+F1 | Mostrar atalhos de teclado |
-| Ctrl+R ou F5 | Atualizar listas e tarefas |
-| F10 | Abrir o menu principal na página de listas |
-| Alt+← | Voltar às listas no modo estreito |
-| Esc | Fechar diálogo ou menu |
+| **Ctrl+Q** | Sair do aplicativo |
+| **Ctrl+W** | Fechar o diálogo aberto ou a janela |
+| **Ctrl+,** | Abrir preferências |
+| **Ctrl+R** ou **F5** | Atualizar listas e tarefas |
+| **Ctrl+?** ou **Ctrl+F1** | Mostrar os atalhos de teclado |
+| **F10** | Abrir o menu principal na página de listas |
+| **Alt+←** | Voltar às listas na janela estreita |
+| **Esc** | Fechar um diálogo ou menu |
 
-A janela de atalhos usa `Adw.ShortcutsDialog`, disponível na libadwaita 1.8 ou
-mais recente (incluída no runtime GNOME 51 do projeto).
+## Como obter o aplicativo
 
-## Preferências
+O GTasks está em desenvolvimento. As compilações de teste em formato `.flatpak`
+ficam disponíveis nos artefatos das execuções concluídas do
+[GitHub Actions](https://github.com/rafatosta/gtasks/actions/workflows/flatpak.yml).
+O download de artefatos pode exigir uma conta GitHub. Essas compilações são
+versões de teste, e não lançamentos estáveis.
 
-Abra **Menu principal → Preferências** ou pressione **Ctrl+,**. O GTasks salva as escolhas com GSettings:
+Com o suporte a Flatpak instalado, extraia o download, abra o arquivo
+`gtasks.flatpak` e siga as instruções do instalador de aplicativos. Para a
+integração Google, use um ambiente GNOME com **Contas Online** configuradas.
 
-- Sincronização das contas Google na inicialização (ativada por padrão).
-- Atualização periódica enquanto o aplicativo estiver aberto (desativada, 5, 15, 30 ou 60 minutos; padrão: 15).
-- Exibição de tarefas concluídas (ativada por padrão).
-- Restauração da última lista selecionada (ativada por padrão).
+## Ajuda e participação
 
-O cache offline permanece ativo para que as listas Google já sincronizadas possam ser consultadas sem conexão. As alterações nas contas Google continuam exigindo internet.
+Encontrou um problema ou tem uma sugestão? Abra um relato na
+[página de problemas do projeto](https://github.com/rafatosta/gtasks/issues),
+descrevendo o que aconteceu e o que você esperava. Ao enviar capturas, evite
+mostrar dados pessoais das suas tarefas ou contas.
 
-Arquitetura e decisões: [docs/](docs/). Licença: GPL-3.0-or-later.
+Quer contribuir com código, traduções ou empacotamento? Consulte a
+[documentação técnica](docs/README.md) e o
+[guia de desenvolvimento](docs/08-desenvolvimento.md).
+
+GTasks é software livre, distribuído sob a [licença GPL-3.0 ou posterior](LICENSE).

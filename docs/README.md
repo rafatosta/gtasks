@@ -12,6 +12,8 @@ As decisões descritas como **normativas** devem orientar a primeira versão. It
 
 ## Documentos
 
+Para executar ou testar o código atual, comece pelo [guia de desenvolvimento](08-desenvolvimento.md). A apresentação do aplicativo fica no [README para usuários](../README.md).
+
 | Documento | Conteúdo |
 | --- | --- |
 | [01 — Objetivo e escopo](01-visao-e-escopo.md) | Propósito, funcionalidades da primeira versão e exclusões |
@@ -20,8 +22,8 @@ As decisões descritas como **normativas** devem orientar a primeira versão. It
 | [04 — Internacionalização](04-internacionalizacao.md) | Idiomas, Gettext, traduções Python/Blueprint e revisão linguística |
 | [05 — Construção e distribuição](05-build-e-distribuicao.md) | Meson, recursos GNOME, Flatpak, identificadores, releases e Flathub |
 | [06 — Conformidade e qualidade](06-conformidade-e-qualidade.md) | GNOME HIG/Circle, políticas Flathub, testes, auditoria e referências |
-
 | [07 — Interface adaptativa](07-interface-adaptativa.md) | Revisão de UX/UI, navegação responsiva, tamanhos e validação visual |
+| [08 — Desenvolvimento](08-desenvolvimento.md) | Dependências, execução, testes, capturas e notas de implementação |
 
 ## Decisões consolidadas
 
