@@ -86,6 +86,9 @@ As sugestões alteram apenas o trecho correspondente. Edições e ações de des
 continuam sincronizadas com o buffer auxiliar. Uma sugestão maior que o limite de
 um campo não pode deixar esse buffer diferente do texto efetivamente aceito.
 Idioma e ativação são compartilhados em tempo real entre todos os campos.
+Um idioma indisponível pode ser normalizado para `None` pela libspelling; esse
+valor nunca é consultado como código de idioma nem gravado em GSettings. Sem um
+dicionário utilizável, os campos continuam editáveis e a inicialização não falha.
 
 Os testes GTK opcionais cobrem os dois componentes de uma linha, acentos,
 sugestões, edição, desfazer, limites e preferências compartilhadas. Para executá-los

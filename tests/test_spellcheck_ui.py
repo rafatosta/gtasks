@@ -100,3 +100,26 @@ class SpellcheckUITest(unittest.TestCase):
         buffer.end_user_action()
         self.assertEqual(entry.get_text(), "viage")
         self.assertEqual(buffer.get_text(*buffer.get_bounds(), False), "viage")
+
+    def test_unavailable_dictionary_does_not_crash_or_store_null(self):
+        from gtasks.views.spellcheck import create_details_view
+        self.settings.set_string("spelling-language", "zz_UNAVAILABLE")
+        view = create_details_view("Keep this text", self.settings)
+        adapter = view._spelling_adapter
+        self.assertIsNotNone(adapter)
+        self.assertIsInstance(self.settings.get_string("spelling-language"), str)
+        self.assertEqual(view.get_buffer().get_text(*view.get_buffer().get_bounds(), False),
+                         "Keep this text")
+
+    def test_null_language_without_fallback_does_not_crash(self):
+        from unittest.mock import patch
+        from gi.repository import Spelling
+        from gtasks.views.spellcheck import create_details_view
+        provider = Spelling.Provider.get_default()
+        self.settings.set_string("spelling-language", "zz_UNAVAILABLE")
+        with patch.object(provider, "get_default_code", return_value=None), \
+             patch.object(provider, "supports_language", side_effect=lambda code: False):
+            view = create_details_view("Still editable", self.settings)
+        self.assertIsNone(view._spelling_adapter.get_language())
+        self.assertEqual(self.settings.get_string("spelling-language"), "zz_UNAVAILABLE")
+        self.assertTrue(view.get_editable())

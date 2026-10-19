@@ -11,14 +11,24 @@ def _create_adapter(buffer, settings):
     Spelling.init()
     provider = Spelling.Provider.get_default()
     requested = settings.get_string("spelling-language") if settings else "pt_BR"
-    language = requested if provider.supports_language(requested) else provider.get_default_code()
+    def supported(code):
+        return bool(code) and provider.supports_language(code)
+    fallback = provider.get_default_code()
+    language = requested if supported(requested) else fallback if supported(fallback) else None
     checker = Spelling.Checker.new(provider, language)
     adapter = Spelling.TextBufferAdapter.new(buffer, checker)
     if settings is not None:
         settings.bind("spell-check-enabled", adapter, "enabled", Gio.SettingsBindFlags.DEFAULT)
-        settings.bind("spelling-language", adapter, "language", Gio.SettingsBindFlags.DEFAULT)
-        if language and not provider.supports_language(adapter.get_language()):
+        # libspelling can normalize an unavailable dictionary to None. Never
+        # write that nullable property back to a non-null GSettings string.
+        settings.bind("spelling-language", adapter, "language", Gio.SettingsBindFlags.GET)
+        if language and not supported(adapter.get_language()):
             adapter.set_language(language)
+        def remember_language(*_args):
+            code = adapter.get_language()
+            if supported(code):
+                settings.set_string("spelling-language", code)
+        adapter.connect("notify::language", remember_language)
     else:
         adapter.set_enabled(True)
     return adapter
