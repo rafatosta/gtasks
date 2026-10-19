@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=GTasks
+Comment=Tasks for GNOME
+Exec=gtasks
+Icon=io.github.rafatosta.gtasks
+Terminal=false
+Categories=Office;Utility;
+StartupNotify=true
