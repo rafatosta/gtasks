@@ -1,4 +1,5 @@
 from collections.abc import Callable
+from datetime import date
 
 import gi
 
@@ -18,8 +19,10 @@ class TaskPanel(Gtk.Box):
         self,
         on_add_task: Callable[[str], None],
         on_toggle_task: Callable[[str, bool], None],
+        on_task_action: Callable[[Task, str], None] | None = None,
     ) -> None:
         super().__init__(orientation=Gtk.Orientation.VERTICAL, spacing=16)
+        self._on_task_action = on_task_action
         self._on_add_task = on_add_task
         self._on_toggle_task = on_toggle_task
         self._tasks: list[Task] = []
@@ -82,18 +85,69 @@ class TaskPanel(Gtk.Box):
         self._tasks = list(tasks)
         self._clear_rows()
         self._empty_label.set_label(empty_message)
+        # Keep cached children next to their parent without relying on fetch order.
+        children: dict[str | None, list[Task]] = {}
+        by_id = {task.id: task for task in tasks}
         for task in tasks:
+            children.setdefault(task.parent if task.parent in by_id else None, []).append(task)
+        pending = [(task, 0) for task in reversed(children.get(None, []))]
+        visited = set()
+        ordered = []
+        while pending:
+            task, depth = pending.pop()
+            if task.id in visited:
+                continue
+            visited.add(task.id)
+            ordered.append((task, depth))
+            pending.extend((child, depth + 1) for child in reversed(children.get(task.id, [])))
+        ordered.extend((task, 0) for task in tasks if task.id not in visited)
+        for task, depth in ordered:
             row = Adw.ActionRow(use_markup=False, title_lines=0)
             row.set_title(task.title)
+            subtitle = []
+            if task.parent:
+                parent = by_id.get(task.parent)
+                subtitle.append("Subtarefa" + (f" de {parent.title}" if parent else ""))
+            if task.due:
+                subtitle.append("Data: " + date.fromisoformat(task.due).strftime("%d/%m/%Y"))
+            if task.notes:
+                subtitle.append(task.notes.replace("\n", " "))
+            row.set_subtitle(" · ".join(subtitle))
+            row.set_subtitle_lines(2)
             check = Gtk.CheckButton(active=task.completed)
             check.set_valign(Gtk.Align.CENTER)
             check.set_tooltip_text("Marcar como pendente" if task.completed else "Concluir tarefa")
             check.update_property([Gtk.AccessibleProperty.LABEL], [task.title])
             check.connect("toggled", self._task_toggled, task.id)
+            check.set_margin_start(min(depth, 2) * 12)
             row.add_prefix(check)
             row.set_activatable_widget(check)
             if task.completed:
                 row.add_css_class("dim-label")
+            if self._on_task_action is not None:
+                menu = Gtk.MenuButton(icon_name="view-more-symbolic", valign=Gtk.Align.CENTER)
+                menu.add_css_class("flat")
+                menu.set_tooltip_text(f"Opções de {task.title}")
+                popup = Gtk.Popover()
+                actions = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=4)
+                for label, action in (("Editar detalhes e data", "edit"),
+                                      ("Adicionar subtarefa", "subtask"),
+                                      ("Mover para outra lista", "move"),
+                                      ("Excluir tarefa", "delete")):
+                    button = Gtk.Button(label=label)
+                    button.add_css_class("flat")
+                    if action == "delete":
+                        button.add_css_class("destructive-action")
+                    if action == "subtask" and (task.assigned or task.parent):
+                        button.set_sensitive(False)
+                    def activate(_button, item=task, name=action, popover=popup):
+                        popover.popdown()
+                        self._on_task_action(item, name)
+                    button.connect("clicked", activate)
+                    actions.append(button)
+                popup.set_child(actions)
+                menu.set_popover(popup)
+                row.add_suffix(menu)
             self._list_box.append(row)
 
     def restore_tasks(self) -> None:

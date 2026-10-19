@@ -10,6 +10,7 @@ from gtasks.models.task import Task
 from gtasks.models.task_list import TaskList
 from gtasks.views.list_sidebar import ListSidebar
 from gtasks.views.task_panel import TaskPanel
+from gtasks.views.task_editor import create_task_editor
 
 
 class MainWindow(Adw.ApplicationWindow):
@@ -74,6 +75,7 @@ class MainWindow(Adw.ApplicationWindow):
         self._task_panel = TaskPanel(
             on_add_task=self._add_task,
             on_toggle_task=self._toggle_task,
+            on_task_action=self._task_action,
         )
 
         sidebar_toolbar.set_content(self._sidebar)
@@ -382,6 +384,87 @@ class MainWindow(Adw.ApplicationWindow):
             "Salvando tarefa...",
             on_error=failed,
         )
+
+    def _task_action(self, task: Task, action: str) -> None:
+        selected = self._controller.selected_list
+        if selected is None or selected.id != task.list_id:
+            return
+        if action == "edit":
+            def save(title, notes, due, success, error):
+                def saved(updated):
+                    self._refresh_tasks()
+                    success(updated)
+                self._controller.update_task_async(
+                    selected, task.id, title, notes, due, saved, error
+                )
+            create_task_editor(task, save).present(self)
+        elif action == "delete":
+            description = f'A tarefa “{task.title}” e suas subtarefas serão excluídas.'
+            if task.assigned:
+                description += " Isso também exclui a tarefa no documento ou espaço de origem do Google."
+            dialog = Adw.AlertDialog.new("Excluir tarefa?", description)
+            dialog.add_response("cancel", "Cancelar")
+            dialog.add_response("delete", "Excluir")
+            dialog.set_response_appearance("delete", Adw.ResponseAppearance.DESTRUCTIVE)
+            dialog.set_default_response("cancel")
+            dialog.set_close_response("cancel")
+            def delete(_dialog, response):
+                if response == "delete":
+                    self._request(
+                        lambda success, error: self._controller.delete_task_async(
+                            selected, task.id, success, error
+                        ), lambda _result: self._refresh_tasks(), "Excluindo tarefa...",
+                    )
+            dialog.connect("response", delete)
+            dialog.present(self)
+        elif action == "subtask":
+            dialog = Adw.AlertDialog.new("Adicionar subtarefa", f'Em “{task.title}”.')
+            entry = Gtk.Entry(placeholder_text="Título da subtarefa", activates_default=True)
+            entry.set_max_length(1024)
+            dialog.set_extra_child(entry)
+            dialog.add_response("cancel", "Cancelar")
+            dialog.add_response("create", "Adicionar")
+            dialog.set_response_appearance("create", Adw.ResponseAppearance.SUGGESTED)
+            dialog.set_default_response("create")
+            dialog.set_close_response("cancel")
+            dialog.set_response_enabled("create", False)
+            entry.connect("changed", lambda widget: dialog.set_response_enabled(
+                "create", bool(widget.get_text().strip())
+            ))
+            def create(_dialog, response):
+                if response == "create":
+                    self._request(
+                        lambda success, error: self._controller.create_subtask_async(
+                            selected, task.id, entry.get_text(), success, error
+                        ), lambda _result: self._refresh_tasks(), "Criando subtarefa...",
+                    )
+            dialog.connect("response", create)
+            dialog.present(self)
+        elif action == "move":
+            lists = [item for item in self._controller.get_lists()
+                     if item.source == selected.source and item.id != selected.id]
+            if not lists:
+                self._show_error("Crie outra lista nesta conta ou dispositivo para mover a tarefa.")
+                return
+            dialog = Adw.AlertDialog.new("Mover tarefa", "Escolha uma lista da mesma conta ou dispositivo.")
+            group = Adw.PreferencesGroup()
+            choice = Adw.ComboRow(title="Lista", model=Gtk.StringList.new([item.name for item in lists]))
+            group.add(choice)
+            dialog.set_extra_child(group)
+            dialog.add_response("cancel", "Cancelar")
+            dialog.add_response("move", "Mover")
+            dialog.set_response_appearance("move", Adw.ResponseAppearance.SUGGESTED)
+            dialog.set_default_response("move")
+            dialog.set_close_response("cancel")
+            def move(_dialog, response):
+                if response == "move":
+                    self._request(
+                        lambda success, error: self._controller.move_task_async(
+                            selected, task.id, lists[choice.get_selected()], success, error
+                        ), lambda _result: self._refresh_tasks(), "Movendo tarefa...",
+                    )
+            dialog.connect("response", move)
+            dialog.present(self)
 
     def _toggle_task(self, task_id: str, completed: bool) -> None:
         selected = self._controller.selected_list

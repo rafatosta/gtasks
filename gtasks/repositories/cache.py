@@ -6,6 +6,7 @@ from pathlib import Path
 
 from gtasks.models.task import Task
 from gtasks.models.task_list import TaskList
+from gtasks.repositories.task_details import ensure_details_column, encode_details, decode_details
 
 
 class RemoteTaskCache:
@@ -45,6 +46,8 @@ class RemoteTaskCache:
                     """
                 )
 
+                ensure_details_column(db, "remote_tasks")
+
     def _connect(self) -> sqlite3.Connection:
         db = sqlite3.connect(self._path, timeout=15)
         db.execute("PRAGMA foreign_keys = ON")
@@ -67,13 +70,14 @@ class RemoteTaskCache:
             if not loaded:
                 return None
             rows = db.execute(
-                """SELECT id, title, completed FROM remote_tasks
+                """SELECT id, title, completed, details FROM remote_tasks
                    WHERE source = ? AND list_id = ? ORDER BY position""",
                 (task_list.source, task_list.id),
             ).fetchall()
         return [
-            Task(id=id, list_id=task_list.id, title=title, completed=bool(done))
-            for id, title, done in rows
+            Task(id=id, list_id=task_list.id, title=title, completed=bool(done),
+                 **decode_details(details))
+            for id, title, done, details in rows
         ]
 
     def replace_lists(self, source: str, lists: list[TaskList]) -> None:
@@ -108,11 +112,11 @@ class RemoteTaskCache:
                 )
                 db.executemany(
                     """INSERT INTO remote_tasks
-                       (source, list_id, id, title, completed, position)
-                       VALUES (?, ?, ?, ?, ?, ?)""",
+                       (source, list_id, id, title, completed, position, details)
+                       VALUES (?, ?, ?, ?, ?, ?, ?)""",
                     [
                         (task_list.source, task_list.id, task.id,
-                         task.title, int(task.completed), position)
+                         task.title, int(task.completed), position, encode_details(task))
                         for position, task in enumerate(tasks)
                     ],
                 )
@@ -145,22 +149,39 @@ class RemoteTaskCache:
                 ).fetchone()[0]
                 db.execute(
                     """INSERT INTO remote_tasks
-                       (source, list_id, id, title, completed, position)
-                       VALUES (?, ?, ?, ?, ?, ?)
+                       (source, list_id, id, title, completed, position, details)
+                       VALUES (?, ?, ?, ?, ?, ?, ?)
                        ON CONFLICT (source, list_id, id) DO UPDATE SET
-                           title = excluded.title, completed = excluded.completed""",
+                           title = excluded.title, completed = excluded.completed,
+                           details = excluded.details""",
                     (task_list.source, task_list.id, task.id, task.title,
-                     int(task.completed), position),
+                     int(task.completed), position, encode_details(task)),
                 )
 
     def update_task(self, task_list: TaskList, task: Task) -> None:
         with closing(self._connect()) as db:
             with db:
                 db.execute(
-                    """UPDATE remote_tasks SET title = ?, completed = ?
+                    """UPDATE remote_tasks SET title = ?, completed = ?, details = ?
                        WHERE source = ? AND list_id = ? AND id = ?""",
-                    (task.title, int(task.completed), task_list.source,
+                    (task.title, int(task.completed), encode_details(task), task_list.source,
                      task_list.id, task.id),
+                )
+
+    def delete_task(self, task_list: TaskList, task_id: str) -> None:
+        with closing(self._connect()) as db:
+            with db:
+                db.execute(
+                    """WITH RECURSIVE removed(id) AS (
+                           SELECT id FROM remote_tasks WHERE source = ? AND list_id = ? AND id = ?
+                           UNION
+                           SELECT child.id FROM remote_tasks child JOIN removed parent
+                           ON json_extract(child.details, '$.parent') = parent.id
+                           WHERE child.source = ? AND child.list_id = ?
+                       ) DELETE FROM remote_tasks
+                       WHERE source = ? AND list_id = ? AND id IN (SELECT id FROM removed)""",
+                    (task_list.source, task_list.id, task_id, task_list.source,
+                     task_list.id, task_list.source, task_list.id),
                 )
 
     def clear_source(self, source: str) -> None:

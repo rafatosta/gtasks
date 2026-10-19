@@ -48,3 +48,44 @@ class InMemoryTaskRepository(TaskRepository):
                 tasks[index] = updated
                 return updated
         raise KeyError(task_id)
+
+    def update_task(self, list_id: str, task_id: str, title: str,
+                    notes: str | None, due: str | None) -> Task:
+        tasks = self._tasks[list_id]
+        for index, task in enumerate(tasks):
+            if task.id == task_id:
+                updated = replace(task, title=title, notes=task.notes if notes is None else notes, due=due)
+                tasks[index] = updated
+                return updated
+        raise KeyError(task_id)
+
+    def _subtree(self, list_id, task_id) -> set[str]:
+        tasks = self._tasks[list_id]
+        if not any(task.id == task_id for task in tasks):
+            raise KeyError(task_id)
+        ids = {task_id}
+        while True:
+            expanded = ids | {task.id for task in tasks if task.parent in ids}
+            if expanded == ids:
+                return ids
+            ids = expanded
+
+    def delete_task(self, list_id: str, task_id: str) -> None:
+        ids = self._subtree(list_id, task_id)
+        self._tasks[list_id] = [task for task in self._tasks[list_id] if task.id not in ids]
+
+    def create_subtask(self, list_id: str, parent: str, title: str) -> Task:
+        self._subtree(list_id, parent)
+        task = replace(self.create_task(list_id, title), parent=parent)
+        self._tasks[list_id][-1] = task
+        return task
+
+    def move_task(self, list_id: str, task_id: str, destination: str) -> Task:
+        target = self._tasks[destination]
+        ids = self._subtree(list_id, task_id)
+        moved = [replace(task, list_id=destination,
+                         parent=None if task.id == task_id else task.parent)
+                 for task in self._tasks[list_id] if task.id in ids]
+        self._tasks[list_id] = [task for task in self._tasks[list_id] if task.id not in ids]
+        target.extend(moved)
+        return next(task for task in moved if task.id == task_id)

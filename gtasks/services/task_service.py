@@ -1,5 +1,7 @@
 from collections.abc import Callable
 from threading import Lock
+from datetime import date
+from contextlib import ExitStack
 
 from gtasks.models.task import Task
 from gtasks.models.task_list import TaskList
@@ -121,9 +123,7 @@ class TaskService:
         return self._repositories.resolve(task_list.source).list_tasks(task_list.id)
 
     def create_task(self, task_list: TaskList, title: str) -> Task:
-        title = title.strip()
-        if not title:
-            raise ValueError("Task title cannot be empty")
+        title = self._validate_title(title)
         if task_list.source == "local":
             return self._repositories.resolve("local").create_task(task_list.id, title)
         with self._list_lock(task_list):
@@ -144,3 +144,58 @@ class TaskService:
             )
             self._repositories.cache_updated_task(task_list, task)
             return task
+
+    @staticmethod
+    def _validate_title(title: str) -> str:
+        title = title.strip()
+        if not title or len(title) > 1024:
+            raise ValueError("O título deve ter entre 1 e 1024 caracteres.")
+        return title
+
+    def update_task(self, task_list: TaskList, task_id: str, title: str,
+                    notes: str | None, due: str | None) -> Task:
+        title = self._validate_title(title)
+        if notes is not None and len(notes) > 8192:
+            raise ValueError("Os detalhes podem ter até 8192 caracteres.")
+        if due is not None:
+            try:
+                due = date.fromisoformat(due).isoformat()
+            except (ValueError, TypeError):
+                raise ValueError("Escolha uma data válida.") from None
+        with self._list_lock(task_list):
+            updated = self._repositories.resolve(task_list.source).update_task(
+                task_list.id, task_id, title, notes, due
+            )
+            if task_list.source != "local":
+                self._repositories.cache_updated_task(task_list, updated)
+            return updated
+
+    def delete_task(self, task_list: TaskList, task_id: str) -> None:
+        with self._list_lock(task_list):
+            self._repositories.resolve(task_list.source).delete_task(task_list.id, task_id)
+            if task_list.source != "local":
+                self._repositories.cache_deleted_task(task_list, task_id)
+
+    def create_subtask(self, task_list: TaskList, parent: str, title: str) -> Task:
+        title = self._validate_title(title)
+        with self._list_lock(task_list):
+            task = self._repositories.resolve(task_list.source).create_subtask(
+                task_list.id, parent, title
+            )
+            if task_list.source != "local":
+                self._repositories.cache_created_task(task_list, task)
+            return task
+
+    def move_task(self, task_list: TaskList, task_id: str, destination: TaskList) -> Task:
+        if destination.source != task_list.source or destination.id == task_list.id:
+            raise ValueError("Escolha outra lista da mesma conta ou deste dispositivo.")
+        with self._source_lock(task_list.source), ExitStack() as stack:
+            for item in sorted((task_list, destination), key=lambda item: item.id):
+                stack.enter_context(self._list_lock(item))
+            repository = self._repositories.resolve(task_list.source)
+            moved = repository.move_task(task_list.id, task_id, destination.id)
+            if task_list.source != "local":
+                # A move can change IDs and include subtasks; reload both snapshots.
+                for item in (task_list, destination):
+                    self._repositories.cache_tasks(item, repository.list_tasks(item.id))
+            return moved

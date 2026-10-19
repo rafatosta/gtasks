@@ -208,3 +208,19 @@ class TaskController:
             lambda: self._service.set_completed(task_list, task_id, completed),
             on_success, on_error, source=task_list.source,
         )
+
+    def update_task_async(self, task_list, task_id, title, notes, due, on_success, on_error):
+        self._run(lambda: self._service.update_task(task_list, task_id, title, notes, due),
+                  on_success, on_error, source=task_list.source)
+
+    def delete_task_async(self, task_list, task_id, on_success, on_error):
+        self._run(lambda: self._service.delete_task(task_list, task_id),
+                  on_success, on_error, source=task_list.source)
+
+    def create_subtask_async(self, task_list, parent, title, on_success, on_error):
+        self._run(lambda: self._service.create_subtask(task_list, parent, title),
+                  on_success, on_error, source=task_list.source)
+
+    def move_task_async(self, task_list, task_id, destination, on_success, on_error):
+        self._run(lambda: self._service.move_task(task_list, task_id, destination),
+                  on_success, on_error, source=task_list.source)

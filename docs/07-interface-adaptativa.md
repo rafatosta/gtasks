@@ -32,6 +32,19 @@ A interface agora usa os componentes nativos da libadwaita:
 - As caixas de seleção têm nomes acessíveis associados aos títulos das tarefas.
   Os controles usam os estilos, ícones e tamanhos nativos do tema.
 
+## Opções por tarefa
+
+O menu de cada linha oferece edição de título, detalhes e data, criação de
+subtarefas, movimentação entre listas da mesma fonte e exclusão com confirmação.
+O editor usa `Adw.Dialog`, `Adw.EntryRow`, `Adw.SwitchRow` e `Gtk.Calendar`, com
+rolagem para acomodar janelas estreitas. Erros de salvamento mantêm os campos
+preenchidos e permitem tentar novamente. O seletor de destino usa `Adw.ComboRow`.
+
+As linhas mostram um resumo dos detalhes, a data e o nome da tarefa principal
+quando aplicável. O vínculo entre subtarefas é preservado na sincronização e no
+cache. Estrelas, anexos, horários e recorrência não são simulados como campos
+editáveis da API. A data representa o dia programado, não um prazo com horário.
+
 ## Validação
 
 Foram abertas janelas com dados temporários e preferências em memória nas

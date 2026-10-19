@@ -17,14 +17,18 @@ class ListManagementTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as folder:
             path = Path(folder) / "local.db"
             repo = SQLiteTaskRepository(path)
+            self.addCleanup(repo._connection.close)
             service = TaskService(RepositoryRegistry({"local": repo}))
             item = service.create_list("Original")
             task = service.create_task(item, "Preservada")
             updated = service.rename_list(item, "  Novo nome  ")
-            self.assertEqual(SQLiteTaskRepository(path).list_lists(), [updated])
+            renamed = SQLiteTaskRepository(path)
+            self.addCleanup(renamed._connection.close)
+            self.assertEqual(renamed.list_lists(), [updated])
             self.assertEqual(service.get_tasks(updated), [task])
             service.delete_list(updated)
             reopened = SQLiteTaskRepository(path)
+            self.addCleanup(reopened._connection.close)
             self.assertEqual(reopened.list_lists(), [])
             self.assertEqual(reopened.list_tasks(item.id), [])
 

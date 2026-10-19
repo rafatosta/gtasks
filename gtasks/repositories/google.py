@@ -105,21 +105,22 @@ class GoogleTasksRepository(TaskRepository):
                 "showDeleted": "false",
             },
         )
-        return [
-            Task(
-                id=item["id"],
-                list_id=list_id,
-                title=item.get("title") or "",
-                completed=item.get("status") == "completed",
-            )
-            for item in tasks
-        ]
+        return [self._task(item, list_id) for item in tasks]
+
+    @staticmethod
+    def _task(item: dict, list_id: str) -> Task:
+        return Task(
+            id=item["id"], list_id=list_id, title=item.get("title") or "",
+            completed=item.get("status") == "completed", notes=item.get("notes") or "",
+            due=item["due"][:10] if item.get("due") else None,
+            parent=item.get("parent"), assigned=bool(item.get("assignmentInfo")),
+        )
 
     def create_task(self, list_id: str, title: str) -> Task:
         item = self._request(
             "POST", f"/lists/{quote(list_id, safe='')}/tasks", {"title": title}
         )
-        return Task(id=item["id"], list_id=list_id, title=item["title"])
+        return self._task(item, list_id)
 
     def set_completed(self, list_id: str, task_id: str, completed: bool) -> Task:
         path = (
@@ -128,9 +129,29 @@ class GoogleTasksRepository(TaskRepository):
         )
         payload = {"status": "completed" if completed else "needsAction"}
         item = self._request("PATCH", path, payload)
-        return Task(
-            id=item["id"],
-            list_id=list_id,
-            title=item.get("title") or "",
-            completed=item.get("status") == "completed",
+        return self._task(item, list_id)
+
+    def update_task(self, list_id: str, task_id: str, title: str,
+                    notes: str | None, due: str | None) -> Task:
+        payload = {"title": title, "due": due + "T00:00:00.000Z" if due else None}
+        if notes is not None:
+            payload["notes"] = notes
+        item = self._request(
+            "PATCH", f"/lists/{quote(list_id, safe='')}/tasks/{quote(task_id, safe='')}", payload,
         )
+        return self._task(item, list_id)
+
+    def delete_task(self, list_id: str, task_id: str) -> None:
+        self._request("DELETE", f"/lists/{quote(list_id, safe='')}/tasks/{quote(task_id, safe='')}")
+
+    def create_subtask(self, list_id: str, parent: str, title: str) -> Task:
+        item = self._request("POST", f"/lists/{quote(list_id, safe='')}/tasks",
+                             {"title": title}, params={"parent": parent})
+        return self._task(item, list_id)
+
+    def move_task(self, list_id: str, task_id: str, destination: str) -> Task:
+        item = self._request(
+            "POST", f"/lists/{quote(list_id, safe='')}/tasks/{quote(task_id, safe='')}/move",
+            params={"destinationTasklist": destination},
+        )
+        return self._task(item, destination)

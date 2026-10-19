@@ -94,3 +94,7 @@ class RepositoryRegistry:
     def cache_updated_task(self, task_list: TaskList, task) -> None:
         if self._cache is not None:
             self._cache.update_task(task_list, task)
+
+    def cache_deleted_task(self, task_list: TaskList, task_id: str) -> None:
+        if self._cache is not None:
+            self._cache.delete_task(task_list, task_id)
