@@ -107,4 +107,4 @@ integração devem ser verificadas também nos testes GTK opcionais.
 
 A janela de atalhos usa `Adw.ShortcutsDialog`, disponível a partir da
 libadwaita 1.8. A lista de atalhos para o usuário fica no
-[README](../README.md#atalhos-de-teclado).
+[README](../README.md#keyboard-shortcuts).

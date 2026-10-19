@@ -1,157 +1,155 @@
 # GTasks
 
-Organize suas tarefas no GNOME, com listas salvas no computador e acesso às suas
-listas do Google Tasks no mesmo aplicativo.
+Organize your tasks on GNOME, with lists saved on your computer and access to
+your Google Tasks lists in one app.
 
-Use o GTasks para planejar a semana, separar assuntos em listas e acompanhar o
-que já foi feito. Você pode começar sem uma conta Google e conectá-la depois.
+Use GTasks to plan your week, keep projects in separate lists, and track what
+you have finished. You can start without a Google account and connect one later.
 
-![GTasks com listas, tarefas, datas e subtarefas](data/screenshots/tasks-pt_BR.png)
+![GTasks showing lists, tasks, dates, and subtasks](data/screenshots/tasks-en_US.png)
 
-*As capturas mostram tarefas e uma conta fictícias, usadas apenas para demonstração.*
+*Screenshots use fictional tasks and an account for demonstration purposes.*
 
-## O que você pode fazer
+## What you can do
 
-### Organizar suas listas
+### Organize your lists
 
-- Criar listas para trabalho, estudos, compras e outros assuntos.
-- Renomear ou excluir uma lista pelo menu **⋮** ao lado do nome.
-- Manter listas só no computador, na seção **Neste dispositivo**.
-- Acessar listas de diferentes contas Google, separadas por conta.
+- Create lists for work, studies, shopping, and other activities.
+- Rename or delete a list using the **⋮** menu next to its name.
+- Keep lists on your computer under **On This Device**.
+- Access lists from multiple Google accounts, grouped by account.
 
-Excluir uma lista também exclui suas tarefas. O aplicativo pede confirmação antes
-de continuar. A última lista de uma conta Google não pode ser removida.
+Deleting a list also deletes its tasks. GTasks asks you to confirm before
+continuing. The last list in a Google account cannot be deleted.
 
-### Cuidar das tarefas
+### Manage your tasks
 
-- **Adicionar:** digite no campo acima da lista e pressione Enter ou clique em **+**.
-- **Concluir ou reabrir:** clique na caixa de seleção ao lado da tarefa.
-- **Ver opções:** clique na tarefa ou no menu **⋮**.
-- **Editar:** dê um duplo clique na tarefa ou escolha a opção de edição no menu.
-- **Detalhar:** altere o título e escreva observações, instruções ou outras informações.
-- **Definir uma data:** escolha um dia no calendário ou use os botões **Hoje** e **Amanhã**. Também é possível remover a data.
-- **Criar subtarefas:** divida uma tarefa em passos menores. Cada subtarefa indica a qual tarefa pertence.
-- **Mover:** transfira tarefas entre listas do computador ou entre listas da mesma conta Google.
-- **Excluir:** remova uma tarefa e suas subtarefas, após confirmar.
+- **Add:** type in the field above the list, then press Enter or click **+**.
+- **Complete or reopen:** click the checkbox beside a task.
+- **Show options:** click a task or its **⋮** menu.
+- **Edit:** double-click a task or choose the editing option from its menu.
+- **Add details:** change the title and write notes, instructions, or other information.
+- **Set a date:** choose a day from the calendar or use **Today** and **Tomorrow**. You can also remove the date.
+- **Create subtasks:** break a task into smaller steps. Each subtask shows which task it belongs to.
+- **Move:** move tasks between local lists or between lists in the same Google account.
+- **Delete:** remove a task and its subtasks after confirming.
 
-Clicar no texto da tarefa abre suas opções; só a caixa de seleção muda o estado
-de conclusão. Se houver um erro ao salvar no editor, o texto digitado permanece
-aberto para você tentar novamente.
+Clicking a task's text opens its options; only the checkbox changes its completion
+status. If saving fails in the editor, your text stays open so you can try again.
 
-![Editor de tarefa com detalhes e data](data/screenshots/editor-pt_BR.png)
+![Task editor with notes and a date](data/screenshots/editor-en_US.png)
 
-### Escrever com ajuda do corretor
+### Get help with spelling
 
-O corretor ortográfico funciona nos campos de texto: novas tarefas, títulos,
-detalhes, nomes de listas e subtarefas. Palavras com possíveis erros ficam
-sublinhadas. Clique com o botão direito para ver sugestões, ignorar uma palavra,
-adicioná-la ao dicionário pessoal ou escolher outro idioma.
+Spell checking works in text fields, including new tasks, titles, notes, list
+names, and subtasks. Words with possible errors are underlined. Right-click to
+see suggestions, ignore a word, add it to your personal dictionary, or choose
+another language.
 
-O texto só é alterado quando você escolhe uma sugestão. A verificação funciona
-sem internet, desde que o dicionário esteja disponível no sistema. Você pode
-ativá-la ou desativá-la em **Preferências → Escrita → Verificar ortografia**.
+Your text changes only when you choose a suggestion. Spell checking works offline
+when the dictionary is available on your system. Turn it on or off under
+**Preferences → Writing → Check Spelling**.
 
-## Como funciona a integração com o Google
+## Connect to Google Tasks
 
-O GTasks utiliza as contas Google cadastradas nas **Contas Online** do GNOME.
-Você faz a autorização nas configurações do sistema; não precisa digitar sua
-senha Google no GTasks.
+GTasks uses Google accounts added to GNOME **Online Accounts**. You authorize
+access in your system settings; you do not need to enter your Google password
+in GTasks.
 
-1. Abra **Configurações → Contas Online** no GNOME.
-2. Adicione sua conta Google e conclua a autorização.
-3. Abra o GTasks ou clique no botão de atualização na página de listas.
-4. Escolha uma lista na seção **Google Tasks**, abaixo da conta desejada.
+1. Open **Settings → Online Accounts** in GNOME.
+2. Add your Google account and complete the authorization.
+3. Open GTasks or click the refresh button on the lists page.
+4. Choose a list under your account in the **Google Tasks** section.
 
-As alterações feitas nessas listas são enviadas à sua conta Google e podem ser
-vistas nos outros lugares em que você usa o Google Tasks. O GTasks também busca
-as mudanças feitas fora do aplicativo ao atualizar. Em **Preferências**, você
-escolhe se quer atualizar ao abrir e com qual frequência verificar mudanças
-enquanto o aplicativo estiver aberto.
+Changes to these lists are sent to your Google account and can be seen wherever
+you use Google Tasks. Refreshing also brings in changes made outside GTasks.
+In **Preferences**, choose whether to refresh when the app starts and how often
+to check for changes while it is open.
 
-Se a conta precisar de uma nova autorização, confira sua situação em
-**Configurações → Contas Online** e tente atualizar novamente. A integração
-depende desse recurso do GNOME e do acesso autorizado ao Google Tasks.
+If your account needs authorization again, check it in **Settings → Online
+Accounts**, then try refreshing. This integration requires GNOME Online Accounts
+and authorized access to Google Tasks.
 
-### O que funciona sem internet
+### Use GTasks offline
 
-| Onde estão as tarefas? | O que você pode fazer sem conexão? |
+| Where are your tasks? | What can you do without an internet connection? |
 | --- | --- |
-| **Neste dispositivo** | Criar, consultar, editar, concluir, mover e excluir listas e tarefas. |
-| **Google Tasks** | Consultar as listas e tarefas que já foram sincronizadas. Para criar ou alterar itens, é preciso conexão. |
+| **On This Device** | Create, view, edit, complete, move, and delete lists and tasks. |
+| **Google Tasks** | View lists and tasks that have already been synchronized. Creating or changing items requires a connection. |
 
-As listas locais ficam no computador e não são enviadas automaticamente ao
-Google. O aplicativo não transfere tarefas entre contas diferentes nem entre as
-listas locais e o Google. Edições de tarefas Google não ficam em uma fila para
-envio posterior: faça essas alterações quando estiver conectado.
+Local lists stay on your computer and are not automatically uploaded to Google.
+GTasks does not move tasks between different accounts or between local lists and
+Google. Changes to Google tasks are not queued for later: make those changes
+while connected.
 
-### Diferenças em relação ao site do Google
+### Differences from the Google website
 
-O GTasks oferece títulos, detalhes, datas, subtarefas, conclusão, movimentação e
-exclusão. Alguns recursos do site do Google ainda não estão disponíveis aqui:
-estrelas, anexos, edição de repetição e agendamento com horário. A data da tarefa
-representa apenas o dia escolhido, sem um lembrete com hora marcada.
+GTasks supports titles, notes, dates, subtasks, completion, moving, and deletion.
+Some features from the Google website are not available here: stars, attachments,
+editing recurring tasks, and scheduling a time. A task's date represents the
+selected day, without a reminder at a specific time.
 
-Tarefas atribuídas por outros serviços Google podem ter restrições de edição.
-Se uma exclusão também afetar a tarefa em sua origem, o aplicativo informa isso
-na confirmação.
+Tasks assigned through other Google services may have editing restrictions.
+If deleting a task also affects it in its original service, GTasks explains
+this in the confirmation.
 
-## Uma interface que acompanha sua janela
+## A layout that fits your window
 
-Em uma janela ampla, as listas e tarefas aparecem lado a lado. Ao reduzir a
-janela, o GTasks mostra uma página por vez: escolha uma lista para ver suas
-tarefas e use o botão de voltar para retornar às listas.
+In a wide window, lists and tasks appear side by side. When you make the window
+narrower, GTasks shows one page at a time: choose a list to see its tasks and
+use the back button to return to your lists.
 
-[Veja a captura da janela compacta](data/screenshots/compact-pt_BR.png).
+[View the narrow window screenshot](data/screenshots/compact-en_US.png).
 
-## Deixe do seu jeito
+## Make it your own
 
-Abra **Menu principal → Preferências** ou pressione **Ctrl+,** para escolher:
+Open **Main Menu → Preferences** or press **Ctrl+,** to choose:
 
-- Se as contas Google devem ser atualizadas ao abrir o aplicativo.
-- O intervalo de atualização automática: desativado, 5, 15, 30 ou 60 minutos.
-- Se as tarefas concluídas devem aparecer junto das pendentes.
-- Se a última lista usada deve ser reaberta ao iniciar.
-- Se o corretor ortográfico deve ficar ativado.
+- Whether to refresh Google accounts when the app starts.
+- The automatic refresh interval: disabled, 5, 15, 30, or 60 minutes.
+- Whether completed tasks appear alongside pending tasks.
+- Whether to reopen the last selected list on startup.
+- Whether spell checking is enabled.
 
-Suas escolhas ficam salvas para a próxima vez. A interface acompanha o idioma do
-sistema, com inglês e português brasileiro disponíveis. As datas seguem o formato
-da sua região. O texto das listas e tarefas permanece como você escreveu; o
-idioma do dicionário pode ser escolhido separadamente.
+Your preferences are saved for next time. The interface follows your system
+language, with English and Brazilian Portuguese available. Dates follow your
+regional format. List names and task text stay as you wrote them; you can choose
+the dictionary language separately.
 
-## Atalhos de teclado
+## Keyboard shortcuts
 
-| Atalho | Ação |
+| Shortcut | Action |
 | --- | --- |
-| **Ctrl+Q** | Sair do aplicativo |
-| **Ctrl+W** | Fechar o diálogo aberto ou a janela |
-| **Ctrl+,** | Abrir preferências |
-| **Ctrl+R** ou **F5** | Atualizar listas e tarefas |
-| **Ctrl+?** ou **Ctrl+F1** | Mostrar os atalhos de teclado |
-| **F10** | Abrir o menu principal na página de listas |
-| **Alt+←** | Voltar às listas na janela estreita |
-| **Esc** | Fechar um diálogo ou menu |
+| **Ctrl+Q** | Quit the app |
+| **Ctrl+W** | Close the open dialog or window |
+| **Ctrl+,** | Open preferences |
+| **Ctrl+R** or **F5** | Refresh lists and tasks |
+| **Ctrl+?** or **Ctrl+F1** | Show keyboard shortcuts |
+| **F10** | Open the main menu on the lists page |
+| **Alt+←** | Return to lists in a narrow window |
+| **Esc** | Close a dialog or menu |
 
-## Como obter o aplicativo
+## Get GTasks
 
-O GTasks está em desenvolvimento. As compilações de teste em formato `.flatpak`
-ficam disponíveis nos artefatos das execuções concluídas do
-[GitHub Actions](https://github.com/rafatosta/gtasks/actions/workflows/flatpak.yml).
-O download de artefatos pode exigir uma conta GitHub. Essas compilações são
-versões de teste, e não lançamentos estáveis.
+GTasks is under development. Test builds in `.flatpak` format are available as
+artifacts from completed
+[GitHub Actions runs](https://github.com/rafatosta/gtasks/actions/workflows/flatpak.yml).
+Downloading artifacts may require a GitHub account. These are test builds,
+rather than stable releases.
 
-Com o suporte a Flatpak instalado, extraia o download, abra o arquivo
-`gtasks.flatpak` e siga as instruções do instalador de aplicativos. Para a
-integração Google, use um ambiente GNOME com **Contas Online** configuradas.
+With Flatpak support installed, extract the download, open `gtasks.flatpak`,
+and follow your software installer's instructions. To connect to Google,
+use a GNOME environment with **Online Accounts** configured.
 
-## Ajuda e participação
+## Help and contribute
 
-Encontrou um problema ou tem uma sugestão? Abra um relato na
-[página de problemas do projeto](https://github.com/rafatosta/gtasks/issues),
-descrevendo o que aconteceu e o que você esperava. Ao enviar capturas, evite
-mostrar dados pessoais das suas tarefas ou contas.
+Found a problem or have a suggestion? Open an issue on the
+[project's issue tracker](https://github.com/rafatosta/gtasks/issues), describing
+what happened and what you expected. If you share screenshots, avoid including
+personal information from your tasks or accounts.
 
-Quer contribuir com código, traduções ou empacotamento? Consulte a
-[documentação técnica](docs/README.md) e o
-[guia de desenvolvimento](docs/08-desenvolvimento.md).
+To contribute code, translations, or packaging, see the
+[technical documentation](docs/README.md) and the
+[development guide](docs/08-desenvolvimento.md).
 
-GTasks é software livre, distribuído sob a [licença GPL-3.0 ou posterior](LICENSE).
+GTasks is free software, distributed under the [GPL-3.0-or-later license](LICENSE).
