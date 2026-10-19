@@ -6,7 +6,7 @@ import gi
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 
-from gi.repository import Adw, Gio, GLib, Gtk
+from gi.repository import Adw, Gio, GLib
 
 from gtasks.auth.goa import GoaAuthProvider
 from gtasks.controllers.task_controller import TaskController
@@ -16,6 +16,7 @@ from gtasks.repositories.sqlite import SQLiteTaskRepository
 from gtasks.repositories.registry import RepositoryRegistry
 from gtasks.services.task_service import TaskService
 from gtasks.views.main_window import MainWindow
+from gtasks.views.about_dialog import GTasksAboutDialog
 
 
 class GTasksApplication(Adw.Application):
@@ -63,16 +64,4 @@ class GTasksApplication(Adw.Application):
         if window is None:
             return
 
-        dialog = Adw.AboutDialog(
-            application_name="GTasks",
-            application_icon="io.github.rafatosta.gtasks",
-            developer_name="Rafael Tosta",
-            version=self.VERSION,
-            comments="Gerenciador de tarefas para GNOME com listas locais e Google Tasks.",
-            copyright="© 2026 Rafael Tosta",
-            website="https://github.com/rafatosta/gtasks",
-            issue_url="https://github.com/rafatosta/gtasks/issues",
-            license_type=Gtk.License.GPL_3_0,
-            developers=["Rafael Tosta"],
-        )
-        dialog.present(window)
+        GTasksAboutDialog(version=self.VERSION).present(window)
