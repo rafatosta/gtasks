@@ -1,6 +1,6 @@
 # GTasks — documentação do projeto
 
-> **Estado:** especificação inicial aprovada; aplicação ainda não implementada.  
+> **Estado:** desenvolvimento ativo; armazenamento local e integração Google Tasks implementados.  
 > **Data-base:** 19 de outubro de 2026.  
 > **Repositório:** https://github.com/rafatosta/gtasks
 
@@ -15,7 +15,7 @@ As decisões descritas como **normativas** devem orientar a primeira versão. It
 | Documento | Conteúdo |
 | --- | --- |
 | [01 — Objetivo e escopo](01-visao-e-escopo.md) | Propósito, funcionalidades da primeira versão e exclusões |
-| [02 — Arquitetura e organização](02-arquitetura-e-organizacao.md) | MVC orientado a objetos, serviços, Repository/DAO, dependências e árvore do código |
+| [02 — Arquitetura e organização](02-arquitetura-e-organizacao.md) | Organização fonte → listas → tarefas; componentes reutilizáveis; MVC e Repository/DAO |
 | [03 — Integrações e segurança](03-integracoes-e-seguranca.md) | Google Tasks API, GNOME Online Accounts, autenticação, isolamento e tratamento de erros |
 | [04 — Internacionalização](04-internacionalizacao.md) | Idiomas, Gettext, traduções Python/Blueprint e revisão linguística |
 | [05 — Construção e distribuição](05-build-e-distribuicao.md) | Meson, recursos GNOME, Flatpak, identificadores, releases e Flathub |
@@ -27,11 +27,11 @@ As decisões descritas como **normativas** devem orientar a primeira versão. It
 | --- | --- |
 | Produto | **GTasks**, cliente de tarefas nativo para o desktop GNOME |
 | Linguagem | Python 3, com PyGObject |
-| Interface | GTK4, libadwaita e arquivos declarativos Blueprint |
+| Interface | GTK4/libadwaita com componentes Python; Blueprint é uma opção futura |
 | Arquitetura | MVC orientado a objetos com camada Service e abstração Repository |
-| Persistência/integradores | Contratos independentes do provedor; Google Tasks será a implementação inicial |
-| Armazenamento local | Possível implementação SQLite posterior, sem alterar View/Controller |
-| Autenticação inicial | GNOME Online Accounts (GOA), **sujeito a prova de integração** |
+| Persistência/integradores | Contrato comum e roteamento por fonte (`local`, `google:<id>`) |
+| Armazenamento local | SQLite implementado; fonte independente das contas Google |
+| Autenticação inicial | GNOME Online Accounts (GOA), integrado e testado no GNOME |
 | Build | Meson + Ninja |
 | Traduções | GNU Gettext; inglês como idioma-fonte, português brasileiro como tradução inicial |
 | Distribuição | Flatpak como formato principal; Flathub como objetivo, não como publicação realizada |
@@ -40,15 +40,15 @@ As decisões descritas como **normativas** devem orientar a primeira versão. It
 
 ## Decisões ainda sujeitas a validação
 
-1. **GOA + Google Tasks:** comprovar disponibilidade do escopo correto e uso do token dentro do sandbox Flatpak; a interface D-Bus não garante por si só autorização suficiente.
-2. **Application ID:** `io.github.rafatosta.GTasks` é o identificador de trabalho anteriormente adotado. O repositório usa `gtasks` em minúsculas; a exigência de correspondência de endereço no Flathub será verificada antes de congelar o ID. Não alterar IDs após publicação sem processo de migração.
+1. **GOA + Google Tasks:** integração funcional no ambiente de desenvolvimento; requisitos de distribuição em outros desktops ainda dependem de validação.
+2. **Application ID:** o código usa `io.github.rafatosta.gtasks`. Validar requisitos finais do Flathub antes de publicar.
 3. **Runtime e SDK GNOME:** selecionar uma versão suportada na data de implementação/publicação e mantê-la atualizada; nenhum número de versão é uma obrigação permanente.
-4. **Licença:** a opção de projeto é `GPL-3.0-or-later`; formalizar no arquivo `LICENSE` e nos metadados quando o código inicial for criado.
+4. **Licença:** `GPL-3.0-or-later`, registrada em `LICENSE` e nos metadados AppStream.
 5. **Distribuição universal:** validar alternativa de autenticação caso a dependência de GOA impeça o uso fora do GNOME ou conflite com as políticas do Flathub.
 
 ## Registro de auditoria
 
-Este repositório começou vazio; estes documentos representam decisões de arquitetura e governança, **não evidência de que os componentes já foram desenvolvidos**. A cada alteração relevante:
+Os documentos registram decisões e estado conhecido do código, sem presumir que funcionalidades futuras já estejam disponíveis. A cada alteração relevante:
 
 - registrar o motivo e o impacto no documento pertinente;
 - manter consistentes interface, contratos de domínio, manifestos, metadados e permissões;
