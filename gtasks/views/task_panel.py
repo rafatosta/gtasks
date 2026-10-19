@@ -6,7 +6,7 @@ import gi
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 
-from gi.repository import Adw, Gtk, Pango
+from gi.repository import Adw, GLib, Gtk, Pango
 
 from gtasks.models.task import Task
 from gtasks.models.task_list import TaskList
@@ -149,7 +149,57 @@ class TaskPanel(Gtk.Box):
                 row.add_suffix(menu)
                 row.set_activatable(True)
                 row.connect("activated", lambda _row, button=menu: button.popup())
+                self._connect_row_clicks(row, check, menu, task)
             self._list_box.append(row)
+
+    def _connect_row_clicks(self, row, check, menu, task: Task) -> None:
+        # Wait for the desktop double-click interval before opening the popover,
+        # otherwise it grabs the pointer before the second click reaches the row.
+        pending: int | None = None
+        gesture = Gtk.GestureClick(button=1)
+        gesture.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
+
+        def cancel_pending(*_args):
+            nonlocal pending
+            if pending is not None:
+                GLib.source_remove(pending)
+                pending = None
+
+        def is_control(x, y):
+            target = row.pick(x, y, Gtk.PickFlags.DEFAULT)
+            return target is not None and any(
+                target == control or target.is_ancestor(control)
+                for control in (check, menu)
+            )
+
+        def pressed(controller, count, x, y):
+            if is_control(x, y):
+                cancel_pending()
+                return
+            controller.set_state(Gtk.EventSequenceState.CLAIMED)
+            cancel_pending()
+
+        def released(_controller, count, x, y):
+            nonlocal pending
+            if is_control(x, y):
+                return
+            if count == 2:
+                menu.popdown()
+                self._on_task_action(task, "edit")
+            elif count == 1:
+                def open_menu():
+                    nonlocal pending
+                    pending = None
+                    if row.get_mapped():
+                        menu.popup()
+                    return GLib.SOURCE_REMOVE
+                interval = row.get_settings().get_property("gtk-double-click-time")
+                pending = GLib.timeout_add(interval, open_menu)
+
+        gesture.connect("pressed", pressed)
+        gesture.connect("released", released)
+        row.add_controller(gesture)
+        row.connect("unrealize", cancel_pending)
 
     def restore_tasks(self) -> None:
         self.show_tasks(self._tasks)

@@ -28,7 +28,9 @@ A interface agora usa os componentes nativos da libadwaita:
   confirmação destrutiva e a proteção da última lista de uma conta.
 - As tarefas usam `Adw.ActionRow` com caixa de seleção como prefixo:
   altura, espaçamento e estados de interação vêm da libadwaita. Clicar na linha
-  abre o menu de opções; somente a caixa de seleção alterna a conclusão. Títulos são texto literal, sem markup.
+  abre o menu de opções; o duplo clique abre o editor. Somente a caixa de
+  seleção alterna a conclusão. O clique simples aguarda o intervalo de duplo
+  clique configurado no desktop antes de abrir o menu. Títulos são texto literal, sem markup.
 - As caixas de seleção têm nomes acessíveis associados aos títulos das tarefas.
   Os controles usam os estilos, ícones e tamanhos nativos do tema.
 
