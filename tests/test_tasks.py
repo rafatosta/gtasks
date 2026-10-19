@@ -71,6 +71,7 @@ class TasksTest(unittest.TestCase):
         personal = controller.create_list("Pessoal", "local")
         controller.create_task("Comprar pão")
         work = controller.create_list("Trabalho", "google")
+        controller.cache_created_remote_list(work)
         controller.create_task("Reunião")
         controller.cache_remote_lists("google", google.list_lists())
 
