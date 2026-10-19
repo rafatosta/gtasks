@@ -4,6 +4,7 @@ from pathlib import Path
 
 from gtasks.controllers.task_controller import TaskController
 from gtasks.repositories.memory import InMemoryTaskRepository
+from gtasks.repositories.registry import RepositoryRegistry
 from gtasks.repositories.sqlite import SQLiteTaskRepository
 from gtasks.services.task_service import TaskService
 
@@ -11,7 +12,7 @@ from gtasks.services.task_service import TaskService
 class TasksTest(unittest.TestCase):
     def setUp(self) -> None:
         repository = InMemoryTaskRepository()
-        self.controller = TaskController(TaskService({"local": repository}))
+        self.controller = TaskController(TaskService(RepositoryRegistry({"local": repository})))
 
     def test_creating_list_starts_empty(self) -> None:
         task_list = self.controller.create_list("Trabalho")
@@ -51,12 +52,12 @@ class TasksTest(unittest.TestCase):
     def test_sqlite_persists_lists_and_tasks(self) -> None:
         with tempfile.TemporaryDirectory() as folder:
             path = Path(folder) / "tasks.db"
-            first = TaskController(TaskService({"local": SQLiteTaskRepository(path)}))
+            first = TaskController(TaskService(RepositoryRegistry({"local": SQLiteTaskRepository(path)})))
             task_list = first.create_list("Pessoal")
             task = first.create_task("Comprar pão")
             first.set_completed(task.id, True)
 
-            reopened = TaskController(TaskService({"local": SQLiteTaskRepository(path)}))
+            reopened = TaskController(TaskService(RepositoryRegistry({"local": SQLiteTaskRepository(path)})))
             reopened.select_list(task_list.id)
             self.assertEqual(reopened.get_lists(), [task_list])
             self.assertEqual(reopened.get_tasks()[0].title, task.title)
@@ -65,15 +66,13 @@ class TasksTest(unittest.TestCase):
     def test_list_sources_can_coexist(self) -> None:
         local = InMemoryTaskRepository(source="local")
         google = InMemoryTaskRepository(source="google")
-        service = TaskService({"local": local, "google": google})
+        service = TaskService(RepositoryRegistry({"local": local, "google": google}))
         controller = TaskController(service)
 
         personal = controller.create_list("Pessoal", "local")
         controller.create_task("Comprar pão")
         work = controller.create_list("Trabalho", "google")
-        controller.cache_created_remote_list(work)
         controller.create_task("Reunião")
-        controller.cache_remote_lists("google", google.list_lists())
 
         self.assertEqual([item.source for item in controller.get_lists()], ["local", "google"])
         controller.select_list(personal.id, "local")

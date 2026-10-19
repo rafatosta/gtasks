@@ -1,15 +1,12 @@
-from concurrent.futures import Future, ThreadPoolExecutor
-
 import gi
 
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 
-from gi.repository import Adw, GLib, Gtk, Pango
+from gi.repository import Adw, Gtk, Pango
 
 from gtasks.controllers.task_controller import TaskController
 from gtasks.models.task import Task
-from gtasks.models.task_list import TaskList
 
 
 class MainWindow(Adw.ApplicationWindow):
@@ -23,7 +20,6 @@ class MainWindow(Adw.ApplicationWindow):
         self._task_generation = 0
         self._last_tasks: list[Task] = []
         self._accounts_generation = 0
-        self._executor = ThreadPoolExecutor(max_workers=3)
         self.set_default_size(900, 560)
         self.connect("close-request", self._on_close)
 
@@ -47,35 +43,30 @@ class MainWindow(Adw.ApplicationWindow):
 
     def _on_close(self, _window) -> bool:
         self._closed = True
-        self._executor.shutdown(wait=False, cancel_futures=True)
+        self._controller.close()
         return False
 
-    def _submit(self, action, callback, message: str, on_error=None) -> None:
+    def _request(self, submit, callback, message: str, on_error=None) -> None:
         if self._closed:
             return
         self._status.set_label(message)
-        future = self._executor.submit(action)
-        future.add_done_callback(
-            lambda completed: GLib.idle_add(self._finish, completed, callback, on_error)
-        )
 
-    def _finish(self, future: Future, callback, on_error) -> bool:
-        if self._closed:
-            return GLib.SOURCE_REMOVE
-        try:
-            result = future.result()
-        except Exception as error:
+        def succeeded(result) -> None:
+            if not self._closed:
+                self._status.set_label("")
+                callback(result)
+
+        def failed(error: Exception) -> None:
+            if self._closed:
+                return
             if on_error is not None:
                 on_error()
-            # Never display raw network responses or authorization credentials.
             if isinstance(error, (ValueError, RuntimeError, KeyError)):
                 self._status.set_label(str(error))
             else:
-                self._status.set_label("Falha ao acessar o Google Tasks.")
-        else:
-            self._status.set_label("")
-            callback(result)
-        return GLib.SOURCE_REMOVE
+                self._status.set_label("Não foi possível concluir a operação.")
+
+        submit(succeeded, failed)
 
     def _create_sidebar(self) -> Gtk.Widget:
         sidebar = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=18)
@@ -127,7 +118,7 @@ class MainWindow(Adw.ApplicationWindow):
         scroll.set_child(sidebar)
         return scroll
 
-    def _build_account_groups(self) -> None:
+    def _build_account_groups(self, accounts: list[tuple[str, str]]) -> None:
         self._refreshing = True
         for source in list(self._groups):
             if source != "local":
@@ -135,7 +126,6 @@ class MainWindow(Adw.ApplicationWindow):
         while child := self._google_accounts.get_first_child():
             self._google_accounts.remove(child)
 
-        accounts = self._controller.remote_accounts()
         if not accounts:
             hint = Gtk.Label(
                 label="Adicione uma conta Google em Configurações → Contas Online.",
@@ -216,26 +206,28 @@ class MainWindow(Adw.ApplicationWindow):
         self._accounts_generation += 1
         generation = self._accounts_generation
 
-        def found(sources) -> None:
+        def found(accounts) -> None:
             if generation != self._accounts_generation:
                 return
-            self._controller.register_remote(sources)
-            self._build_account_groups()
+            self._build_account_groups(accounts)
             self._refresh_lists()
-            for source, _identity in self._controller.remote_accounts():
+            for source, _identity in accounts:
                 self._load_remote_lists(source)
 
-        self._submit(self._controller.discover_remote, found, "Procurando contas Google...")
+        self._request(
+            self._controller.discover_remote_async,
+            found,
+            "Procurando contas Google...",
+        )
 
     def _load_remote_lists(self, source: str) -> None:
-        def loaded(lists) -> None:
-            if not self._controller.has_source(source):
-                return
-            self._controller.cache_remote_lists(source, lists)
+        def loaded(_lists) -> None:
             self._refresh_lists()
 
-        self._submit(
-            lambda: self._controller.load_remote_lists(source),
+        self._request(
+            lambda success, error: self._controller.load_remote_lists_async(
+                source, success, error
+            ),
             loaded,
             "Atualizando listas do Google...",
         )
@@ -258,19 +250,12 @@ class MainWindow(Adw.ApplicationWindow):
         if response != "create" or not entry.get_text().strip():
             return
         name = entry.get_text()
-        if source == "local":
-            self._controller.create_list(name)
-            self._refresh_lists()
-            return
-
-        def created(task_list: TaskList) -> None:
-            self._controller.cache_created_remote_list(task_list)
-            self._refresh_lists()
-
-        self._submit(
-            lambda: self._controller.create_list(name, source),
-            created,
-            "Criando lista no Google...",
+        self._request(
+            lambda success, error: self._controller.create_list_async(
+                name, source, success, error
+            ),
+            lambda _created: self._refresh_lists(),
+            "Criando lista...",
         )
 
     def _on_list_selected(self, _box: Gtk.ListBox, row: Gtk.ListBoxRow | None) -> None:
@@ -319,12 +304,6 @@ class MainWindow(Adw.ApplicationWindow):
         title = self._task_entry.get_text().strip()
         if not title or selected is None:
             return
-        if selected.source == "local":
-            self._controller.create_task_for(selected, title)
-            self._task_entry.set_text("")
-            self._refresh_tasks()
-            return
-
         self._task_entry.set_sensitive(False)
         self._add_task_button.set_sensitive(False)
 
@@ -337,10 +316,12 @@ class MainWindow(Adw.ApplicationWindow):
             self._task_entry.set_sensitive(True)
             self._add_task_button.set_sensitive(True)
 
-        self._submit(
-            lambda: self._controller.create_task_for(selected, title),
+        self._request(
+            lambda success, error: self._controller.create_task_async(
+                selected, title, success, error
+            ),
             created,
-            "Salvando tarefa no Google...",
+            "Salvando tarefa...",
             on_error=failed,
         )
 
@@ -348,10 +329,6 @@ class MainWindow(Adw.ApplicationWindow):
         selected = self._controller.selected_list
         if selected is None:
             return
-        if selected.source == "local":
-            self._controller.set_completed_for(selected, task_id, check.get_active())
-            return
-
         completed = check.get_active()
         check.set_sensitive(False)
 
@@ -359,10 +336,12 @@ class MainWindow(Adw.ApplicationWindow):
             if self._controller.selected_list == selected:
                 self._render_tasks(self._last_tasks)
 
-        self._submit(
-            lambda: self._controller.set_completed_for(selected, task_id, completed),
+        self._request(
+            lambda success, error: self._controller.set_completed_async(
+                selected, task_id, completed, success, error
+            ),
             lambda _task: self._refresh_tasks(),
-            "Atualizando tarefa no Google...",
+            "Atualizando tarefa...",
             on_error=failed,
         )
 
@@ -385,11 +364,7 @@ class MainWindow(Adw.ApplicationWindow):
         if selected is None:
             self._empty_label.set_label("Crie uma lista para começar")
             return
-        if selected.source == "local":
-            self._render_tasks(self._controller.get_tasks_for(selected))
-            return
-
-        self._empty_label.set_label("Carregando tarefas do Google...")
+        self._empty_label.set_label("Carregando tarefas...")
 
         def loaded(tasks: list[Task]) -> None:
             if generation != self._task_generation:
@@ -404,10 +379,12 @@ class MainWindow(Adw.ApplicationWindow):
                     "Não foi possível carregar as tarefas. Tente atualizar."
                 )
 
-        self._submit(
-            lambda: self._controller.get_tasks_for(selected),
+        self._request(
+            lambda success, error: self._controller.get_tasks_async(
+                selected, success, error
+            ),
             loaded,
-            "Sincronizando tarefas...",
+            "Carregando tarefas...",
             on_error=failed,
         )
 

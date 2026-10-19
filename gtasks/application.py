@@ -6,12 +6,13 @@ import gi
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 
-from gi.repository import Adw, Gio
+from gi.repository import Adw, Gio, GLib
 
 from gtasks.auth.goa import GoaAuthProvider
 from gtasks.controllers.task_controller import TaskController
 from gtasks.repositories.google import GoogleTasksRepository
 from gtasks.repositories.sqlite import SQLiteTaskRepository
+from gtasks.repositories.registry import RepositoryRegistry
 from gtasks.services.task_service import TaskService
 from gtasks.views.main_window import MainWindow
 
@@ -32,8 +33,14 @@ class GTasksApplication(Adw.Application):
                 for account in auth.list_accounts()
             ]
 
-        service = TaskService({"local": storage}, discover_remote=discover)
-        self._controller = TaskController(service)
+        registry = RepositoryRegistry({"local": storage}, discover_remote=discover)
+        service = TaskService(registry)
+        self._controller = TaskController(
+            service,
+            dispatch=lambda callback: GLib.idle_add(
+                lambda: (callback(), GLib.SOURCE_REMOVE)[1]
+            ),
+        )
 
     def do_activate(self) -> None:
         window = self.props.active_window

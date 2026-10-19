@@ -1,13 +1,63 @@
+from collections.abc import Callable
+from concurrent.futures import Future, ThreadPoolExecutor
+from typing import TypeVar
+
 from gtasks.models.task import Task
 from gtasks.models.task_list import TaskList
-from gtasks.services.task_service import RemoteSource, TaskService
+from gtasks.services.task_service import TaskService
+
+T = TypeVar("T")
 
 
 class TaskController:
-    def __init__(self, service: TaskService) -> None:
+    """Coordinates operations and keeps remote I/O off the GTK thread."""
+
+    def __init__(
+        self,
+        service: TaskService,
+        dispatch: Callable[[Callable[[], None]], object] | None = None,
+    ) -> None:
         self._service = service
         self._selected_list_id: str | None = None
         self._selected_source: str | None = None
+        self._dispatch = dispatch or (lambda callback: callback())
+        self._executor = ThreadPoolExecutor(max_workers=3)
+        self._closed = False
+
+    def close(self) -> None:
+        self._closed = True
+        self._executor.shutdown(wait=False, cancel_futures=True)
+
+    def _run(
+        self,
+        action: Callable[[], T],
+        on_success: Callable[[T], None],
+        on_error: Callable[[Exception], None],
+        source: str | None = None,
+    ) -> None:
+        if self._closed:
+            return
+
+        def finish(future: Future[T]) -> None:
+            if self._closed:
+                return
+            try:
+                result = future.result()
+            except Exception as error:
+                on_error(error)
+            else:
+                on_success(result)
+
+        if source == "local":
+            future: Future[T] = Future()
+            try:
+                future.set_result(action())
+            except Exception as error:
+                future.set_exception(error)
+            finish(future)
+        else:
+            future = self._executor.submit(action)
+            future.add_done_callback(lambda done: self._dispatch(lambda: finish(done)))
 
     @property
     def selected_list(self) -> TaskList | None:
@@ -19,21 +69,6 @@ class TaskController:
             ),
             None,
         )
-
-    def discover_remote(self) -> list[RemoteSource]:
-        return self._service.discover_remote()
-
-    def register_remote(self, sources: list[RemoteSource]) -> None:
-        self._service.register_remote(sources)
-
-    def remote_accounts(self) -> list[tuple[str, str]]:
-        return self._service.remote_accounts()
-
-    def load_remote_lists(self, source: str) -> list[TaskList]:
-        return self._service.load_remote_lists(source)
-
-    def cache_remote_lists(self, source: str, lists: list[TaskList]) -> None:
-        self._service.cache_remote_lists(source, lists)
 
     def has_source(self, source: str) -> bool:
         return self._service.has_source(source)
@@ -50,36 +85,75 @@ class TaskController:
         self._selected_source = source
 
     def create_list(self, name: str, source: str = "local") -> TaskList:
+        """Synchronous operation used by domain tests."""
         task_list = self._service.create_list(name, source)
-        if source == "local":
-            self.select_list(task_list.id, source)
+        self._service.remember_created_list(task_list)
+        self.select_list(task_list.id, source)
         return task_list
-
-    def cache_created_remote_list(self, task_list: TaskList) -> None:
-        self._service.cache_new_list(task_list)
-        self.select_list(task_list.id, task_list.source)
-
-    def get_tasks_for(self, task_list: TaskList) -> list[Task]:
-        return self._service.get_tasks(task_list)
-
-    def create_task_for(self, task_list: TaskList, title: str) -> Task:
-        return self._service.create_task(task_list, title)
-
-    def set_completed_for(self, task_list: TaskList, task_id: str, completed: bool) -> Task:
-        return self._service.set_completed(task_list, task_id, completed)
-
-    def get_tasks(self) -> list[Task]:
-        selected = self.selected_list
-        return self.get_tasks_for(selected) if selected else []
 
     def create_task(self, title: str) -> Task:
         selected = self.selected_list
         if selected is None:
             raise ValueError("Select a list first")
-        return self.create_task_for(selected, title)
+        return self._service.create_task(selected, title)
+
+    def get_tasks(self) -> list[Task]:
+        selected = self.selected_list
+        return self._service.get_tasks(selected) if selected else []
 
     def set_completed(self, task_id: str, completed: bool) -> Task:
         selected = self.selected_list
         if selected is None:
             raise ValueError("Select a list first")
-        return self.set_completed_for(selected, task_id, completed)
+        return self._service.set_completed(selected, task_id, completed)
+
+    def discover_remote_async(self, on_success, on_error) -> None:
+        def found(sources) -> None:
+            self._service.register_remote(sources)
+            on_success(self._service.remote_accounts())
+
+        self._run(self._service.discover_remote, found, on_error)
+
+    def load_remote_lists_async(self, source: str, on_success, on_error) -> None:
+        def loaded(lists) -> None:
+            self._service.cache_remote_lists(source, lists)
+            on_success(lists)
+
+        self._run(
+            lambda: self._service.load_remote_lists(source),
+            loaded, on_error, source=source,
+        )
+
+    def create_list_async(self, name: str, source: str, on_success, on_error) -> None:
+        def created(task_list: TaskList) -> None:
+            self._service.remember_created_list(task_list)
+            self.select_list(task_list.id, task_list.source)
+            on_success(task_list)
+
+        self._run(
+            lambda: self._service.create_list(name, source),
+            created, on_error, source=source,
+        )
+
+    def get_tasks_async(self, task_list: TaskList, on_success, on_error) -> None:
+        self._run(
+            lambda: self._service.get_tasks(task_list),
+            on_success, on_error, source=task_list.source,
+        )
+
+    def create_task_async(
+        self, task_list: TaskList, title: str, on_success, on_error
+    ) -> None:
+        self._run(
+            lambda: self._service.create_task(task_list, title),
+            on_success, on_error, source=task_list.source,
+        )
+
+    def set_completed_async(
+        self, task_list: TaskList, task_id: str, completed: bool,
+        on_success, on_error,
+    ) -> None:
+        self._run(
+            lambda: self._service.set_completed(task_list, task_id, completed),
+            on_success, on_error, source=task_list.source,
+        )
