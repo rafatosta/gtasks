@@ -398,10 +398,17 @@ class MainWindow(Adw.ApplicationWindow):
                 return
             self._render_tasks(tasks)
 
+        def failed() -> None:
+            if self._controller.selected_list == selected:
+                self._empty_label.set_label(
+                    "Não foi possível carregar as tarefas. Tente atualizar."
+                )
+
         self._submit(
             lambda: self._controller.get_tasks_for(selected),
             loaded,
             "Sincronizando tarefas...",
+            on_error=failed,
         )
 
     def _render_tasks(self, tasks: list[Task]) -> None:
