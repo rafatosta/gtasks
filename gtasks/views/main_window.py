@@ -122,7 +122,7 @@ class MainWindow(Adw.ApplicationWindow):
 
     def _refresh_lists(self) -> None:
         self._rows.clear()
-        while row := self._list_box.get_first_child():
+        while row := self._list_box.get_row_at_index(0):
             self._list_box.remove(row)
 
         selected_row = None
@@ -164,7 +164,7 @@ class MainWindow(Adw.ApplicationWindow):
             "Esta lista não tem tarefas" if selected else "Crie uma lista para começar"
         )
 
-        while row := self._tasks_box.get_first_child():
+        while row := self._tasks_box.get_row_at_index(0):
             self._tasks_box.remove(row)
 
         for task in self._controller.get_tasks():
