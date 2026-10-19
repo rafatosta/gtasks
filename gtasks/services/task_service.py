@@ -63,7 +63,10 @@ class TaskService:
             return self._source_locks.setdefault(source, Lock())
 
     def sync_source(
-        self, source: str, on_progress: Callable[[TaskList | None], None]
+        self,
+        source: str,
+        on_progress: Callable[[TaskList | None], None],
+        should_stop: Callable[[], bool] | None = None,
     ) -> None:
         """Refresh complete lists and each task snapshot without blocking GTK."""
         with self._source_lock(source):
@@ -72,6 +75,8 @@ class TaskService:
         on_progress(None)
         first_error = None
         for task_list in lists:
+            if should_stop is not None and should_stop():
+                return
             try:
                 with self._list_lock(task_list):
                     tasks = self.get_tasks(task_list)

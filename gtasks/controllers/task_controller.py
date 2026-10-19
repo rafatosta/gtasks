@@ -154,6 +154,7 @@ class TaskController:
                 lambda item: self._dispatch(
                     lambda item=item: on_progress(item) if not self._closed else None
                 ),
+                should_stop=lambda: self._closed,
             )
 
         def succeeded(_result) -> None:

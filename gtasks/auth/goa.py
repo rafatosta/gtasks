@@ -49,8 +49,7 @@ class GoaAuthProvider:
                 continue
             if _value(info.get("ProviderType")) != "google":
                 continue
-            if _value(info.get("AttentionNeeded", False)):
-                continue
+            # Keep accounts needing reauthorization visible for offline cache access.
             account_id = _value(info.get("Id")) or path.rsplit("/", 1)[-1]
             identity = _value(info.get("PresentationIdentity")) or str(account_id)
             accounts.append(GoogleAccount(str(account_id), str(identity), path))
