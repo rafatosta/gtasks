@@ -92,6 +92,27 @@ class OfflineCacheTest(unittest.TestCase):
         self.assertIsNone(self.cache.tasks(a))
         self.assertEqual(self.cache.tasks(b)[0].title, "Keep")
 
+    def test_reading_cached_tasks_does_not_refetch_google(self):
+        class CountingRepository(InMemoryTaskRepository):
+            fetches = 0
+
+            def list_tasks(self, list_id):
+                self.fetches += 1
+                return super().list_tasks(list_id)
+
+        remote = CountingRepository("google:a")
+        task_list = remote.create_list("Work")
+        remote.create_task(task_list.id, "Hello")
+        registry = RepositoryRegistry({"local": self.local}, cache=self.cache)
+        registry.register_remote([("google:a", "A", remote)])
+        service = TaskService(registry)
+        service.sync_source("google:a", lambda _item: None)
+        self.assertEqual(remote.fetches, 1)
+
+        for _ in range(5):
+            self.assertEqual(service.cached_tasks(task_list)[0].title, "Hello")
+        self.assertEqual(remote.fetches, 1)
+
     def test_cache_for_removed_account_is_cleared(self):
         remote = InMemoryTaskRepository("google:a")
         registry = RepositoryRegistry({"local": self.local}, cache=self.cache)
