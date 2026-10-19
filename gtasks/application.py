@@ -11,6 +11,7 @@ from gi.repository import Adw, Gio, GLib
 from gtasks.auth.goa import GoaAuthProvider
 from gtasks.controllers.task_controller import TaskController
 from gtasks.repositories.google import GoogleTasksRepository
+from gtasks.repositories.cache import RemoteTaskCache
 from gtasks.repositories.sqlite import SQLiteTaskRepository
 from gtasks.repositories.registry import RepositoryRegistry
 from gtasks.services.task_service import TaskService
@@ -24,7 +25,9 @@ class GTasksApplication(Adw.Application):
             flags=Gio.ApplicationFlags.DEFAULT_FLAGS,
         )
         data_dir = Path(os.environ.get("XDG_DATA_HOME", Path.home() / ".local/share"))
-        storage = SQLiteTaskRepository(data_dir / "gtasks" / "tasks.db")
+        database = data_dir / "gtasks" / "tasks.db"
+        storage = SQLiteTaskRepository(database)
+        cache = RemoteTaskCache(database)
         auth = GoaAuthProvider()
 
         def discover():
@@ -33,7 +36,9 @@ class GTasksApplication(Adw.Application):
                 for account in auth.list_accounts()
             ]
 
-        registry = RepositoryRegistry({"local": storage}, discover_remote=discover)
+        registry = RepositoryRegistry(
+            {"local": storage}, discover_remote=discover, cache=cache
+        )
         service = TaskService(registry)
         self._controller = TaskController(
             service,

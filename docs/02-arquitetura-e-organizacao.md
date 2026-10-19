@@ -40,9 +40,9 @@ O identificador é uma chave interna de roteamento, não um token de autenticaç
 - `Task`: `id`, `list_id`, `title`, `completed`. A identidade completa é **(`source`, `list_id`, `id`)**; a fonte é herdada da lista à qual a tarefa pertence.
 - `GoogleAccount`: identificação e caminho D-Bus de uma conta GOA, usados apenas na integração/autenticação. Não substitui `TaskList` ou `Task`.
 
-A camada de domínio não contém objetos GTK, SQL, JSON de API ou tokens OAuth. As listas locais são mantidas no SQLite, e as listas Google são consultadas pela API; o índice das listas remotas carregadas é mantido **somente em memória**.
+A camada de domínio não contém objetos GTK, SQL, JSON de API ou tokens OAuth. As listas locais são mantidas no SQLite, e as listas Google são consultadas pela API; as cópias das listas e tarefas Google são mantidas no cache SQLite, separadas por fonte, lista e tarefa. O índice em memória serve apenas para a navegação.
 
-Não existe sincronização offline entre o banco SQLite e as contas Google. "Sincronizada" na interface significa operar diretamente contra a fonte remota disponível.
+Há **cache offline para leitura**, não edição offline: ao iniciar, o GTasks mostra dados já armazenados e atualiza as contas em segundo plano, com uma consulta por conta e snapshots completos por lista. Uma falha preserva o último snapshot válido. Escritas na conta Google continuam sendo feitas na API e, após sucesso, atualizam o cache. Não há fila de modificações offline nem sincronização bidirecional com as listas locais.
 
 ## 3. Componentes visuais compartilhados
 
@@ -75,7 +75,7 @@ SourceListGroup / ListSidebar / TaskPanel (GTK4/libadwaita)
 
 O contrato `TaskRepository` (`repositories/base.py`, `Protocol`) reúne as operações básicas de listas e tarefas. Os adaptadores `sqlite.py`, `google.py` e `memory.py` implementam o contrato; `memory.py` é usado principalmente em testes. Não existe camada DAO paralela: **Repository cumpre esse papel**.
 
-O `RepositoryRegistry` registra as fontes, encontra o adaptador pelo `source` e mantém um índice temporário das listas remotas. O `TaskService` valida operações. O `TaskController` mantém a seleção e executa operações remotas fora do loop GTK; o resultado volta à thread gráfica antes de atualizar a interface. A montagem das dependências ocorre em `application.py`.
+O `RepositoryRegistry` registra as fontes, encontra o adaptador pelo `source` e carrega o índice de listas remotas do cache SQLite. `RemoteTaskCache` armazena snapshots em tabelas separadas das listas locais, sem guardar tokens. O `TaskService` valida operações. O `TaskController` mantém a seleção e executa operações remotas fora do loop GTK; o resultado volta à thread gráfica antes de atualizar a interface. A montagem das dependências ocorre em `application.py`.
 
 Exemplo de roteamento ao adicionar tarefa:
 
@@ -110,6 +110,7 @@ gtasks/
 ├── repositories/
 │   ├── base.py
 │   ├── registry.py
+│   ├── cache.py
 │   ├── sqlite.py
 │   ├── google.py
 │   └── memory.py
@@ -122,6 +123,6 @@ gtasks/
 1. Cada fonte tem seu próprio adaptador e identificador; não misturar tarefas entre contas.
 2. A interface nunca consulta HTTP ou SQLite diretamente; a troca do adaptador ocorre no Registry.
 3. Uma nova funcionalidade compartilhada deve entrar no contrato e nos testes de seus adaptadores; recursos exclusivos de um provedor exigem capacidades explícitas.
-4. Não implementar armazenamento offline ou uma camada `SyncService` sem requisitos concretos de reconciliação e conflitos.
+4. O cache offline é apenas de leitura; não implementar fila de escritas ou sincronização bidirecional sem regras explícitas de conflito.
 5. Não bloquear o loop principal GTK com chamadas de rede ou manipular widgets em threads de trabalho.
 6. Testar seleção, criação e conclusão de tarefas nas fontes local e Google após mudanças no roteamento.

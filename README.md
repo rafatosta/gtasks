@@ -4,7 +4,7 @@ Aplicativo nativo de tarefas para GNOME (Python, GTK4 e libadwaita).
 
 - **Neste dispositivo:** listas e tarefas persistidas localmente em SQLite.
 - **Google Tasks:** listas da conta Google configurada em **Configurações → Contas Online**, com leitura e gravação diretas na API. Contas distintas são mantidas separadas.
-- Acesso remoto exige conexão. Não há cache offline nem transferência automática de tarefas entre fontes.
+- O aplicativo mantém um cache SQLite para **consultar listas e tarefas Google offline**, atualizado em segundo plano ao iniciar e ao clicar em atualizar. Criar e alterar tarefas Google ainda exige conexão; não há fila de edições offline nem transferência automática entre fontes.
 
 ## Executar no GNOME Builder
 

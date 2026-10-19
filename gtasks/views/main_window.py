@@ -18,7 +18,6 @@ class MainWindow(Adw.ApplicationWindow):
         super().__init__(application=application, title="GTasks")
         self._controller = controller
         self._closed = False
-        self._task_generation = 0
         self._accounts_generation = 0
         self.set_default_size(900, 560)
         self.connect("close-request", self._on_close)
@@ -87,7 +86,7 @@ class MainWindow(Adw.ApplicationWindow):
             self._sidebar.set_accounts(accounts)
             self._refresh_lists()
             for source, _identity in accounts:
-                self._load_remote_lists(source)
+                self._sync_account(source)
 
         self._request(
             self._controller.discover_remote_async,
@@ -95,14 +94,31 @@ class MainWindow(Adw.ApplicationWindow):
             "Procurando contas Google...",
         )
 
-    def _load_remote_lists(self, source: str) -> None:
-        self._request(
-            lambda success, error: self._controller.load_remote_lists_async(
-                source, success, error
-            ),
-            lambda _lists: self._refresh_lists(),
-            "Atualizando listas do Google...",
-        )
+    def _sync_account(self, source: str) -> None:
+        def progress(updated_list) -> None:
+            if updated_list is None:
+                # Refresh the index as soon as it arrives; tasks follow in the background.
+                self._refresh_lists()
+            elif self._controller.selected_list == updated_list:
+                self._refresh_tasks()
+
+        def completed() -> None:
+            self._sidebar.set_status("")
+            selected = self._controller.selected_list
+            if selected is not None and selected.source == source:
+                self._refresh_tasks()
+
+        def failed(error: Exception) -> None:
+            self._sidebar.set_status(
+                str(error) if isinstance(error, RuntimeError)
+                else "Não foi possível sincronizar a conta."
+            )
+            selected = self._controller.selected_list
+            if (selected is not None and selected.source == source
+                    and self._controller.cached_tasks(selected) is None):
+                self._task_panel.show_message("Sem conexão e sem tarefas em cache.")
+
+        self._controller.sync_account_async(source, progress, completed, failed)
 
     def _show_create_list_dialog(self, source: str) -> None:
         dialog = Adw.AlertDialog.new("Nova lista", "Escolha um nome para a lista.")
@@ -185,33 +201,19 @@ class MainWindow(Adw.ApplicationWindow):
         )
 
     def _refresh_tasks(self) -> None:
-        self._task_generation += 1
-        generation = self._task_generation
         selected = self._controller.selected_list
         self._task_panel.set_list(selected)
-
         if selected is None:
             self._task_panel.show_message("Crie uma lista para começar")
             return
-        self._task_panel.show_message("Carregando tarefas...")
 
-        def loaded(tasks: list[Task]) -> None:
-            if generation != self._task_generation:
-                return
-            if self._controller.selected_list == selected:
-                self._task_panel.show_tasks(tasks)
-
-        def failed() -> None:
-            if generation == self._task_generation:
-                self._task_panel.show_message(
-                    "Não foi possível carregar as tarefas. Tente atualizar."
-                )
-
-        self._request(
-            lambda success, error: self._controller.get_tasks_async(
-                selected, success, error
-            ),
-            loaded,
-            "Carregando tarefas...",
-            on_error=failed,
-        )
+        # The remote cache is read immediately; selecting a list causes no HTTP call.
+        cached = self._controller.cached_tasks(selected)
+        if cached is not None:
+            self._task_panel.show_tasks(cached)
+        elif self._controller.is_syncing(selected.source):
+            self._task_panel.show_message("Sincronizando tarefas...")
+        else:
+            self._task_panel.show_message(
+                "Nenhuma cópia local disponível. Atualize para sincronizar."
+            )

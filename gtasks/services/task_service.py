@@ -1,3 +1,6 @@
+from collections.abc import Callable
+from threading import Lock
+
 from gtasks.models.task import Task
 from gtasks.models.task_list import TaskList
 from gtasks.repositories.registry import RemoteSource, RepositoryRegistry
@@ -8,6 +11,9 @@ class TaskService:
 
     def __init__(self, repositories: RepositoryRegistry) -> None:
         self._repositories = repositories
+        self._locks: dict[tuple[str, str], Lock] = {}
+        self._locks_guard = Lock()
+        self._source_locks: dict[str, Lock] = {}
 
     def discover_remote(self) -> list[RemoteSource]:
         return self._repositories.discover_remote()
@@ -37,7 +43,47 @@ class TaskService:
         name = name.strip()
         if not name:
             raise ValueError("List name cannot be empty")
-        return self._repositories.resolve(source).create_list(name)
+        if source == "local":
+            return self._repositories.resolve("local").create_list(name)
+        with self._source_lock(source):
+            item = self._repositories.resolve(source).create_list(name)
+            self._repositories.remember_created(item)
+            return item
+
+    def cached_tasks(self, task_list: TaskList) -> list[Task] | None:
+        return self._repositories.cached_tasks(task_list)
+
+    def _list_lock(self, task_list: TaskList) -> Lock:
+        key = (task_list.source, task_list.id)
+        with self._locks_guard:
+            return self._locks.setdefault(key, Lock())
+
+    def _source_lock(self, source: str) -> Lock:
+        with self._locks_guard:
+            return self._source_locks.setdefault(source, Lock())
+
+    def sync_source(
+        self, source: str, on_progress: Callable[[TaskList | None], None]
+    ) -> None:
+        """Refresh complete lists and each task snapshot without blocking GTK."""
+        with self._source_lock(source):
+            lists = self.load_remote_lists(source)
+            self.cache_remote_lists(source, lists)
+        on_progress(None)
+        first_error = None
+        for task_list in lists:
+            try:
+                with self._list_lock(task_list):
+                    tasks = self.get_tasks(task_list)
+                    self._repositories.cache_tasks(task_list, tasks)
+            except Exception as error:
+                # One unavailable list must not block the others.
+                if first_error is None:
+                    first_error = error
+            else:
+                on_progress(task_list)
+        if first_error is not None:
+            raise first_error
 
     def get_tasks(self, task_list: TaskList) -> list[Task]:
         return self._repositories.resolve(task_list.source).list_tasks(task_list.id)
@@ -46,9 +92,23 @@ class TaskService:
         title = title.strip()
         if not title:
             raise ValueError("Task title cannot be empty")
-        return self._repositories.resolve(task_list.source).create_task(task_list.id, title)
+        if task_list.source == "local":
+            return self._repositories.resolve("local").create_task(task_list.id, title)
+        with self._list_lock(task_list):
+            task = self._repositories.resolve(task_list.source).create_task(
+                task_list.id, title
+            )
+            self._repositories.cache_created_task(task_list, task)
+            return task
 
     def set_completed(self, task_list: TaskList, task_id: str, completed: bool) -> Task:
-        return self._repositories.resolve(task_list.source).set_completed(
-            task_list.id, task_id, completed
-        )
+        if task_list.source == "local":
+            return self._repositories.resolve("local").set_completed(
+                task_list.id, task_id, completed
+            )
+        with self._list_lock(task_list):
+            task = self._repositories.resolve(task_list.source).set_completed(
+                task_list.id, task_id, completed
+            )
+            self._repositories.cache_updated_task(task_list, task)
+            return task

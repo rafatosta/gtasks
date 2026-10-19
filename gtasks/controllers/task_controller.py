@@ -23,6 +23,7 @@ class TaskController:
         self._dispatch = dispatch or (lambda callback: callback())
         self._executor = ThreadPoolExecutor(max_workers=3)
         self._closed = False
+        self._syncing: set[str] = set()
 
     def close(self) -> None:
         self._closed = True
@@ -87,7 +88,6 @@ class TaskController:
     def create_list(self, name: str, source: str = "local") -> TaskList:
         """Synchronous operation used by domain tests."""
         task_list = self._service.create_list(name, source)
-        self._service.remember_created_list(task_list)
         self.select_list(task_list.id, source)
         return task_list
 
@@ -126,7 +126,6 @@ class TaskController:
 
     def create_list_async(self, name: str, source: str, on_success, on_error) -> None:
         def created(task_list: TaskList) -> None:
-            self._service.remember_created_list(task_list)
             self.select_list(task_list.id, task_list.source)
             on_success(task_list)
 
@@ -134,6 +133,38 @@ class TaskController:
             lambda: self._service.create_list(name, source),
             created, on_error, source=source,
         )
+
+    def cached_tasks(self, task_list: TaskList) -> list[Task] | None:
+        return self._service.cached_tasks(task_list)
+
+    def is_syncing(self, source: str) -> bool:
+        return source in self._syncing
+
+    def sync_account_async(
+        self, source: str, on_progress, on_done, on_error
+    ) -> None:
+        # A single full refresh per account; selection never starts a second fetch.
+        if source in self._syncing:
+            return
+        self._syncing.add(source)
+
+        def action() -> None:
+            self._service.sync_source(
+                source,
+                lambda item: self._dispatch(
+                    lambda item=item: on_progress(item) if not self._closed else None
+                ),
+            )
+
+        def succeeded(_result) -> None:
+            self._syncing.discard(source)
+            on_done()
+
+        def failed(error: Exception) -> None:
+            self._syncing.discard(source)
+            on_error(error)
+
+        self._run(action, succeeded, failed, source=source)
 
     def get_tasks_async(self, task_list: TaskList, on_success, on_error) -> None:
         self._run(
