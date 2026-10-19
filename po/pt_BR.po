@@ -5,6 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GTasks 0.1.0\n"
 "Report-Msgid-Bugs-To: https://github.com/rafatosta/gtasks/issues\n"
+"POT-Creation-Date: 2026-10-19 16:15-0300\n"
 "PO-Revision-Date: 2026-10-19 00:00-0300\n"
 "Last-Translator: GTasks contributors\n"
 "Language-Team: Brazilian Portuguese\n"
@@ -14,14 +15,17 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-
 #: gtasks/auth/goa.py:44
 msgid "GNOME Online Accounts could not be accessed."
 msgstr "Não foi possível acessar as Contas Online do GNOME."
 
 #: gtasks/auth/goa.py:75
-msgid "Authorization could not be obtained. Check the Google account in Online Accounts."
-msgstr "Não foi possível obter autorização. Verifique a conta Google nas Contas Online."
+msgid ""
+"Authorization could not be obtained. Check the Google account in Online "
+"Accounts."
+msgstr ""
+"Não foi possível obter autorização. Verifique a conta Google nas Contas "
+"Online."
 
 #: gtasks/auth/goa.py:78
 msgid "GNOME did not return an access token."
@@ -33,12 +37,18 @@ msgid "Select a list first"
 msgstr "Selecione uma lista primeiro"
 
 #: gtasks/repositories/google.py:48
-msgid "Google authorization has expired. Authorize the account again in Online Accounts."
+msgid ""
+"Google authorization has expired. Authorize the account again in Online "
+"Accounts."
 msgstr "A autorização Google expirou. Reautorize em Contas Online."
 
 #: gtasks/repositories/google.py:51
-msgid "Google Tasks access was denied. Check the account permissions and whether the Tasks API is enabled."
-msgstr "Acesso ao Google Tasks negado. Verifique as permissões da conta e se a API Tasks está habilitada."
+msgid ""
+"Google Tasks access was denied. Check the account permissions and whether "
+"the Tasks API is enabled."
+msgstr ""
+"Acesso ao Google Tasks negado. Verifique as permissões da conta e se a API "
+"Tasks está habilitada."
 
 #: gtasks/repositories/google.py:54
 msgid "The list or task no longer exists in Google Tasks."
@@ -214,8 +224,11 @@ msgstr "Excluir lista?"
 
 #: gtasks/views/main_window.py:321
 #, python-brace-format
-msgid "The list “{name}” and all its tasks will be deleted. This cannot be undone."
-msgstr "A lista “{name}” e todas as suas tarefas serão excluídas. Essa ação não pode ser desfeita."
+msgid ""
+"The list “{name}” and all its tasks will be deleted. This cannot be undone."
+msgstr ""
+"A lista “{name}” e todas as suas tarefas serão excluídas. Essa ação não pode "
+"ser desfeita."
 
 #: gtasks/views/main_window.py:324 gtasks/views/main_window.py:413
 msgid "Delete"
@@ -236,7 +249,8 @@ msgstr "A tarefa “{title}” e suas subtarefas serão excluídas."
 
 #: gtasks/views/main_window.py:410
 msgid "This also deletes the task in the original Google document or space."
-msgstr "Isso também exclui a tarefa no documento ou espaço de origem do Google."
+msgstr ""
+"Isso também exclui a tarefa no documento ou espaço de origem do Google."
 
 #: gtasks/views/main_window.py:411
 msgid "Delete Task?"
@@ -392,8 +406,12 @@ msgid "Storage"
 msgstr "Armazenamento"
 
 #: gtasks/views/preferences_dialog.py:89
-msgid "Local lists are saved on this device. Google accounts keep a copy for offline viewing; remote changes require a connection."
-msgstr "Listas locais são salvas no dispositivo. As contas Google mantêm uma cópia para consulta offline; alterações remotas exigem conexão."
+msgid ""
+"Local lists are saved on this device. Google accounts keep a copy for "
+"offline viewing; remote changes require a connection."
+msgstr ""
+"Listas locais são salvas no dispositivo. As contas Google mantêm uma cópia "
+"para consulta offline; alterações remotas exigem conexão."
 
 #: gtasks/views/shortcuts_dialog.py:13
 msgid "General"
@@ -528,8 +546,24 @@ msgid "Tasks for GNOME"
 msgstr "Tarefas para GNOME"
 
 #: data/io.github.rafatosta.gtasks.metainfo.xml.in:9
-msgid "Manage local and Google Tasks lists in one native GNOME application. Previously synchronized tasks can be viewed offline."
-msgstr "Gerencie listas locais e do Google Tasks em um aplicativo nativo do GNOME. Tarefas sincronizadas anteriormente podem ser consultadas offline."
+msgid ""
+"Manage local and Google Tasks lists in one native GNOME application. "
+"Previously synchronized tasks can be viewed offline."
+msgstr ""
+"Gerencie listas locais e do Google Tasks em um aplicativo nativo do GNOME. "
+"Tarefas sincronizadas anteriormente podem ser consultadas offline."
+
+#: data/io.github.rafatosta.gtasks.metainfo.xml.in:19
+msgid "Organize local tasks and Google Tasks lists"
+msgstr "Organize tarefas locais e listas do Google Tasks"
+
+#: data/io.github.rafatosta.gtasks.metainfo.xml.in:24
+msgid "Edit task notes and dates"
+msgstr "Edite detalhes e datas das tarefas"
+
+#: data/io.github.rafatosta.gtasks.metainfo.xml.in:29
+msgid "Manage tasks in a narrow window"
+msgstr "Gerencie tarefas em uma janela estreita"
 
 #: data/io.github.rafatosta.gtasks.gschema.xml:6
 msgid "Synchronize Google accounts on startup"

@@ -14,4 +14,21 @@
   </developer>
   <url type="homepage">https://github.com/rafatosta/gtasks</url>
   <url type="bugtracker">https://github.com/rafatosta/gtasks/issues</url>
+  <screenshots>
+    <screenshot type="default">
+      <caption>Organize local tasks and Google Tasks lists</caption>
+      <image type="source" width="1900" height="1380">https://raw.githubusercontent.com/rafatosta/gtasks/e7c5ab49619a71b377aa87a0e63919590e89850c/data/screenshots/tasks-en_US.png</image>
+      <image type="source" xml:lang="pt-BR" width="1900" height="1380">https://raw.githubusercontent.com/rafatosta/gtasks/e7c5ab49619a71b377aa87a0e63919590e89850c/data/screenshots/tasks-pt_BR.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>Edit task notes and dates</caption>
+      <image type="source" width="1900" height="1380">https://raw.githubusercontent.com/rafatosta/gtasks/e7c5ab49619a71b377aa87a0e63919590e89850c/data/screenshots/editor-en_US.png</image>
+      <image type="source" xml:lang="pt-BR" width="1900" height="1380">https://raw.githubusercontent.com/rafatosta/gtasks/e7c5ab49619a71b377aa87a0e63919590e89850c/data/screenshots/editor-pt_BR.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>Manage tasks in a narrow window</caption>
+      <image type="source" width="940" height="1380">https://raw.githubusercontent.com/rafatosta/gtasks/e7c5ab49619a71b377aa87a0e63919590e89850c/data/screenshots/compact-en_US.png</image>
+      <image type="source" xml:lang="pt-BR" width="940" height="1380">https://raw.githubusercontent.com/rafatosta/gtasks/e7c5ab49619a71b377aa87a0e63919590e89850c/data/screenshots/compact-pt_BR.png</image>
+    </screenshot>
+  </screenshots>
 </component>

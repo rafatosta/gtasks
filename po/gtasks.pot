@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GTasks 0.1.0\n"
 "Report-Msgid-Bugs-To: https://github.com/rafatosta/gtasks/issues\n"
-"POT-Creation-Date: 2026-10-19 15:49-0300\n"
+"POT-Creation-Date: 2026-10-19 16:15-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -542,6 +542,18 @@ msgstr ""
 msgid ""
 "Manage local and Google Tasks lists in one native GNOME application. "
 "Previously synchronized tasks can be viewed offline."
+msgstr ""
+
+#: data/io.github.rafatosta.gtasks.metainfo.xml.in:19
+msgid "Organize local tasks and Google Tasks lists"
+msgstr ""
+
+#: data/io.github.rafatosta.gtasks.metainfo.xml.in:24
+msgid "Edit task notes and dates"
+msgstr ""
+
+#: data/io.github.rafatosta.gtasks.metainfo.xml.in:29
+msgid "Manage tasks in a narrow window"
 msgstr ""
 
 #: data/io.github.rafatosta.gtasks.gschema.xml:6
