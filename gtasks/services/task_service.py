@@ -58,7 +58,7 @@ class TaskService:
             updated = self._repositories.resolve(task_list.source).rename_list(task_list.id, name)
             if task_list.source != "local":
                 lists = [updated if item.id == task_list.id else item
-                         for item in self.get_lists() if item.source == task_list.source]
+                         for item in self._repositories.remote_lists(task_list.source)]
                 self.cache_remote_lists(task_list.source, lists)
             return updated
 
@@ -66,8 +66,8 @@ class TaskService:
         with self._source_lock(task_list.source), self._list_lock(task_list):
             self._repositories.resolve(task_list.source).delete_list(task_list.id)
             if task_list.source != "local":
-                lists = [item for item in self.get_lists()
-                         if item.source == task_list.source and item.id != task_list.id]
+                lists = [item for item in self._repositories.remote_lists(task_list.source)
+                         if item.id != task_list.id]
                 self.cache_remote_lists(task_list.source, lists)
 
     def cached_tasks(self, task_list: TaskList) -> list[Task] | None:
@@ -99,8 +99,8 @@ class TaskService:
                 return
             try:
                 with self._list_lock(task_list):
-                    if not any(item.id == task_list.id and item.source == task_list.source
-                               for item in self.get_lists()):
+                    if not any(item.id == task_list.id
+                               for item in self._repositories.remote_lists(source)):
                         continue
                     tasks = self.get_tasks(task_list)
                     self._repositories.cache_tasks(task_list, tasks)

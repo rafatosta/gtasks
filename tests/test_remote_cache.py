@@ -1,5 +1,6 @@
 import tempfile
 import unittest
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 from gtasks.models.task import Task
@@ -112,6 +113,35 @@ class OfflineCacheTest(unittest.TestCase):
         for _ in range(5):
             self.assertEqual(service.cached_tasks(task_list)[0].title, "Hello")
         self.assertEqual(remote.fetches, 1)
+
+    def test_synced_lists_can_be_renamed_and_deleted_from_worker(self):
+        remote = InMemoryTaskRepository("google:a")
+        original = remote.create_list("Work")
+        task = remote.create_task(original.id, "Keep until deletion")
+        other = InMemoryTaskRepository("google:b")
+        untouched = other.create_list("Other account")
+        registry = RepositoryRegistry({"local": self.local}, cache=self.cache)
+        registry.register_remote([("google:a", "A", remote), ("google:b", "B", other)])
+        service = TaskService(registry)
+        local_list = service.create_list("Local")
+
+        with ThreadPoolExecutor(max_workers=1) as worker:
+            worker.submit(service.sync_source, "google:a", lambda _item: None).result()
+            worker.submit(service.sync_source, "google:b", lambda _item: None).result()
+            renamed = worker.submit(service.rename_list, original, "Renamed").result()
+            self.assertEqual(renamed.name, "Renamed")
+            self.assertEqual(remote.list_lists(), [renamed])
+            self.assertEqual(self.cache.lists("google:a"), [renamed])
+            self.assertEqual(self.cache.tasks(renamed), [task])
+            worker.submit(service.delete_list, renamed).result()
+            worker.submit(service.sync_source, "google:a", lambda _item: None).result()
+
+        self.assertEqual(remote.list_lists(), [])
+        self.assertEqual(self.cache.lists("google:a"), [])
+        self.assertIsNone(self.cache.tasks(original))
+        self.assertEqual(self.cache.lists("google:b"), [untouched])
+        self.assertEqual(self.local.list_lists(), [local_list])
+        self.assertEqual(service.get_lists(), [local_list, untouched])
 
     def test_cache_for_removed_account_is_cleared(self):
         remote = InMemoryTaskRepository("google:a")

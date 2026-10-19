@@ -57,6 +57,10 @@ class RepositoryRegistry:
             lists.extend(remote_lists)
         return lists
 
+    def remote_lists(self, source: str) -> list[TaskList]:
+        """Read one remote index without accessing the local SQLite connection."""
+        return list(self._remote_lists.get(source, []))
+
     def load_remote_lists(self, source: str) -> list[TaskList]:
         if source == "local":
             raise ValueError("Local lists are not remote")
