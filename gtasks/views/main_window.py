@@ -21,6 +21,7 @@ class MainWindow(Adw.ApplicationWindow):
         self._refreshing = False
         self._closed = False
         self._task_generation = 0
+        self._last_tasks: list[Task] = []
         self._accounts_generation = 0
         self._executor = ThreadPoolExecutor(max_workers=3)
         self.set_default_size(900, 560)
@@ -49,21 +50,23 @@ class MainWindow(Adw.ApplicationWindow):
         self._executor.shutdown(wait=False, cancel_futures=True)
         return False
 
-    def _submit(self, action, callback, message: str) -> None:
+    def _submit(self, action, callback, message: str, on_error=None) -> None:
         if self._closed:
             return
         self._status.set_label(message)
         future = self._executor.submit(action)
         future.add_done_callback(
-            lambda completed: GLib.idle_add(self._finish, completed, callback)
+            lambda completed: GLib.idle_add(self._finish, completed, callback, on_error)
         )
 
-    def _finish(self, future: Future, callback) -> bool:
+    def _finish(self, future: Future, callback, on_error) -> bool:
         if self._closed:
             return GLib.SOURCE_REMOVE
         try:
             result = future.result()
         except Exception as error:
+            if on_error is not None:
+                on_error()
             # Never display raw network responses or authorization credentials.
             if isinstance(error, (ValueError, RuntimeError, KeyError)):
                 self._status.set_label(str(error))
@@ -330,10 +333,15 @@ class MainWindow(Adw.ApplicationWindow):
                 self._task_entry.set_text("")
                 self._refresh_tasks()
 
+        def failed() -> None:
+            self._task_entry.set_sensitive(True)
+            self._add_task_button.set_sensitive(True)
+
         self._submit(
             lambda: self._controller.create_task_for(selected, title),
             created,
             "Salvando tarefa no Google...",
+            on_error=failed,
         )
 
     def _on_task_toggled(self, check: Gtk.CheckButton, task_id: str) -> None:
@@ -344,17 +352,23 @@ class MainWindow(Adw.ApplicationWindow):
             self._controller.set_completed_for(selected, task_id, check.get_active())
             return
 
+        completed = check.get_active()
         check.set_sensitive(False)
+
+        def failed() -> None:
+            if self._controller.selected_list == selected:
+                self._render_tasks(self._last_tasks)
+
         self._submit(
-            lambda: self._controller.set_completed_for(
-                selected, task_id, check.get_active()
-            ),
+            lambda: self._controller.set_completed_for(selected, task_id, completed),
             lambda _task: self._refresh_tasks(),
             "Atualizando tarefa no Google...",
+            on_error=failed,
         )
 
     def _refresh_tasks(self) -> None:
         self._task_generation += 1
+        self._last_tasks = []
         generation = self._task_generation
         selected = self._controller.selected_list
         self._title.set_label(selected.name if selected else "Selecione uma lista")
@@ -391,6 +405,7 @@ class MainWindow(Adw.ApplicationWindow):
         )
 
     def _render_tasks(self, tasks: list[Task]) -> None:
+        self._last_tasks = list(tasks)
         self._empty_label.set_label("Esta lista não tem tarefas")
         while row := self._tasks_box.get_row_at_index(0):
             self._tasks_box.remove(row)

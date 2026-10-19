@@ -72,6 +72,7 @@ class TasksTest(unittest.TestCase):
         controller.create_task("Comprar pão")
         work = controller.create_list("Trabalho", "google")
         controller.create_task("Reunião")
+        controller.cache_remote_lists("google", google.list_lists())
 
         self.assertEqual([item.source for item in controller.get_lists()], ["local", "google"])
         controller.select_list(personal.id, "local")

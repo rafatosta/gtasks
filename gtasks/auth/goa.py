@@ -1,8 +1,8 @@
 """Access GNOME Online Accounts via its public session D-Bus interface."""
 
-from dataclasses import dataclass
-
 from gi.repository import Gio, GLib
+
+from gtasks.models.google_account import GoogleAccount
 
 
 _BUS = "org.gnome.OnlineAccounts"
@@ -13,17 +13,6 @@ _OAUTH2 = "org.gnome.OnlineAccounts.OAuth2Based"
 
 class GoaError(RuntimeError):
     pass
-
-
-@dataclass(frozen=True, slots=True)
-class GoogleAccount:
-    id: str
-    identity: str
-    object_path: str
-
-    @property
-    def source(self) -> str:
-        return f"google:{self.id}"
 
 
 def _value(value):

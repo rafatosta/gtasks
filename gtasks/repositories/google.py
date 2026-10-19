@@ -5,7 +5,7 @@ from urllib.error import HTTPError, URLError
 from urllib.parse import quote, urlencode
 from urllib.request import Request, urlopen
 
-from gtasks.auth.goa import GoogleAccount
+from gtasks.models.google_account import GoogleAccount
 from gtasks.models.task import Task
 from gtasks.models.task_list import TaskList
 
