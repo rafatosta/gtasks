@@ -136,7 +136,6 @@ class ListSidebar(Gtk.ScrolledWindow):
         self._updating = False
 
         sidebar = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=18)
-        sidebar.set_size_request(250, -1)
         sidebar.set_margin_top(18)
         sidebar.set_margin_start(12)
         sidebar.set_margin_end(12)
@@ -154,7 +153,8 @@ class ListSidebar(Gtk.ScrolledWindow):
         google.append(self._accounts_box)
         sidebar.append(google)
 
-        self._status = Gtk.Label(label="", xalign=0, wrap=True)
+        self._status = Gtk.Label(label="", xalign=0, wrap=True,
+                                 wrap_mode=Pango.WrapMode.WORD_CHAR)
         self._status.add_css_class("dim-label")
         sidebar.append(self._status)
 
@@ -187,6 +187,7 @@ class ListSidebar(Gtk.ScrolledWindow):
         if not accounts:
             hint = Gtk.Label(
                 label="Adicione uma conta Google em Configurações → Contas Online.",
+                wrap_mode=Pango.WrapMode.WORD_CHAR,
                 xalign=0,
                 wrap=True,
             )

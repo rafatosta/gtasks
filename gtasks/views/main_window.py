@@ -38,7 +38,9 @@ class MainWindow(Adw.ApplicationWindow):
         self.set_default_size(900, 560)
         self.connect("close-request", self._on_close)
 
-        toolbar = Adw.ToolbarView()
+        # Breakpoints require an explicit minimum size; support phone-sized widths.
+        self.set_size_request(360, 294)
+        sidebar_toolbar = Adw.ToolbarView()
         header = Adw.HeaderBar()
 
         main_menu = Gio.Menu()
@@ -52,7 +54,7 @@ class MainWindow(Adw.ApplicationWindow):
         refresh_button.set_tooltip_text("Atualizar listas e tarefas")
         refresh_button.connect("clicked", self._refresh_google)
         header.pack_end(refresh_button)
-        toolbar.add_top_bar(header)
+        sidebar_toolbar.add_top_bar(header)
 
         self._sidebar = ListSidebar(
             on_create_list=self._show_create_list_dialog,
@@ -65,12 +67,33 @@ class MainWindow(Adw.ApplicationWindow):
             on_toggle_task=self._toggle_task,
         )
 
-        layout = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
-        layout.append(self._sidebar)
-        layout.append(Gtk.Separator(orientation=Gtk.Orientation.VERTICAL))
-        layout.append(self._task_panel)
-        toolbar.set_content(layout)
-        self.set_content(toolbar)
+        sidebar_toolbar.set_content(self._sidebar)
+        sidebar_page = Adw.NavigationPage.new(sidebar_toolbar, "Listas")
+        sidebar_page.add_css_class("sidebar")
+
+        content_toolbar = Adw.ToolbarView()
+        content_header = Adw.HeaderBar()
+        self._content_title = Adw.WindowTitle(title="GTasks")
+        content_header.set_title_widget(self._content_title)
+        content_toolbar.add_top_bar(content_header)
+        clamp = Adw.Clamp(maximum_size=720, tightening_threshold=480)
+        clamp.set_child(self._task_panel)
+        content_toolbar.set_content(clamp)
+        self._content_page = Adw.NavigationPage.new(content_toolbar, "Tarefas")
+
+        self._split_view = Adw.NavigationSplitView(
+            min_sidebar_width=260, max_sidebar_width=320,
+            sidebar_width_fraction=0.3,
+        )
+        self._split_view.set_sidebar(sidebar_page)
+        self._split_view.set_content(self._content_page)
+        breakpoint = Adw.Breakpoint.new(Adw.BreakpointCondition.parse("max-width: 660sp"))
+        breakpoint.add_setter(self._split_view, "collapsed", True)
+        self.add_breakpoint(breakpoint)
+
+        self._toast_overlay = Adw.ToastOverlay()
+        self._toast_overlay.set_child(self._split_view)
+        self.set_content(self._toast_overlay)
 
         self._refresh_lists()
         self._refresh_google()
@@ -119,6 +142,7 @@ class MainWindow(Adw.ApplicationWindow):
             for item in self._controller.get_lists()
         ):
             self._controller.select_list(list_id, source)
+            self._split_view.set_show_content(True)
             self._restore_pending = False
 
     def _remember_selection(self) -> None:
@@ -145,11 +169,15 @@ class MainWindow(Adw.ApplicationWindow):
             if on_error is not None:
                 on_error()
             if isinstance(error, (ValueError, RuntimeError, KeyError)):
-                self._sidebar.set_status(str(error))
+                self._show_error(str(error))
             else:
-                self._sidebar.set_status("Não foi possível concluir a operação.")
+                self._show_error("Não foi possível concluir a operação.")
 
         submit(succeeded, failed)
+
+    def _show_error(self, message: str) -> None:
+        self._sidebar.set_status(message)
+        self._toast_overlay.add_toast(Adw.Toast.new(message))
 
     def _refresh_google(self, _button: Gtk.Button | None = None) -> None:
         if _button is not None:
@@ -189,7 +217,7 @@ class MainWindow(Adw.ApplicationWindow):
                 self._refresh_tasks()
 
         def failed(error: Exception) -> None:
-            self._sidebar.set_status(
+            self._show_error(
                 str(error) if isinstance(error, RuntimeError)
                 else "Não foi possível sincronizar a conta."
             )
@@ -209,6 +237,10 @@ class MainWindow(Adw.ApplicationWindow):
         dialog.add_response("create", "Criar")
         dialog.set_response_appearance("create", Adw.ResponseAppearance.SUGGESTED)
         dialog.set_default_response("create")
+        dialog.set_close_response("cancel")
+        entry.connect("changed", lambda widget: dialog.set_response_enabled(
+            "create", bool(widget.get_text().strip())
+        ))
         dialog.connect("response", self._create_list, entry, source)
         dialog.present(self)
 
@@ -290,11 +322,13 @@ class MainWindow(Adw.ApplicationWindow):
     def _after_create_list(self) -> None:
         self._remember_selection()
         self._refresh_lists()
+        self._split_view.set_show_content(True)
 
     def _select_list(self, source: str, list_id: str) -> None:
         self._controller.select_list(list_id, source)
         self._remember_selection()
         self._refresh_tasks()
+        self._split_view.set_show_content(True)
 
     def _refresh_lists(self) -> None:
         self._try_restore_selection()
@@ -350,8 +384,19 @@ class MainWindow(Adw.ApplicationWindow):
     def _refresh_tasks(self) -> None:
         selected = self._controller.selected_list
         self._task_panel.set_list(selected)
+        title = selected.name if selected else "Tarefas"
+        self._content_page.set_title(title)
+        self._content_title.set_title(title)
+        self._content_title.set_subtitle(
+            "Neste dispositivo" if selected and selected.source == "local"
+            else "Google Tasks" if selected else ""
+        )
         if selected is None:
-            self._task_panel.show_message("Crie uma lista para começar")
+            self._split_view.set_show_content(False)
+            self._task_panel.show_message(
+                "Selecione uma lista para ver as tarefas"
+                if self._controller.get_lists() else "Crie uma lista para começar"
+            )
             return
 
         # The remote cache is read immediately; selecting a list causes no HTTP call.

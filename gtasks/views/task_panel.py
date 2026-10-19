@@ -4,7 +4,7 @@ import gi
 
 gi.require_version("Gtk", "4.0")
 
-from gi.repository import Gtk
+from gi.repository import Gtk, Pango
 
 from gtasks.models.task import Task
 from gtasks.models.task_list import TaskList
@@ -28,18 +28,11 @@ class TaskPanel(Gtk.Box):
         self.set_margin_start(24)
         self.set_margin_end(24)
 
-        self._title = Gtk.Label(label="Selecione uma lista", xalign=0)
-        self._title.add_css_class("title-1")
-        self.append(self._title)
-
-        self._source_label = Gtk.Label(xalign=0)
-        self._source_label.add_css_class("dim-label")
-        self.append(self._source_label)
-
         add_row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
         self._entry = Gtk.Entry(
             placeholder_text="Adicionar uma tarefa", hexpand=True
         )
+        self._entry.set_width_chars(1)
         self._entry.connect("activate", self._submit_task)
         add_row.append(self._entry)
 
@@ -51,8 +44,12 @@ class TaskPanel(Gtk.Box):
 
         self._list_box = Gtk.ListBox()
         self._list_box.set_selection_mode(Gtk.SelectionMode.NONE)
+        self._list_box.set_valign(Gtk.Align.START)
         self._list_box.add_css_class("boxed-list")
-        self._empty_label = Gtk.Label(label="Crie uma lista para começar")
+        self._empty_label = Gtk.Label(
+            label="Crie uma lista para começar", wrap=True,
+            wrap_mode=Pango.WrapMode.WORD_CHAR, justify=Gtk.Justification.CENTER,
+        )
         self._empty_label.add_css_class("dim-label")
         self._empty_label.set_margin_top(40)
         self._list_box.set_placeholder(self._empty_label)
@@ -64,15 +61,6 @@ class TaskPanel(Gtk.Box):
         self.set_input_enabled(False)
 
     def set_list(self, task_list: TaskList | None) -> None:
-        self._title.set_label(task_list.name if task_list else "Selecione uma lista")
-        source = ""
-        if task_list is not None:
-            source = (
-                "Salvo neste dispositivo"
-                if task_list.source == "local"
-                else "Google Tasks"
-            )
-        self._source_label.set_label(source)
         self.set_input_enabled(task_list is not None)
 
     def set_input_enabled(self, enabled: bool) -> None:
@@ -102,10 +90,15 @@ class TaskPanel(Gtk.Box):
             box.set_margin_end(12)
 
             check = Gtk.CheckButton(active=task.completed)
+            check.set_valign(Gtk.Align.START)
+            check.set_tooltip_text("Marcar como pendente" if task.completed else "Concluir tarefa")
+            check.update_property([Gtk.AccessibleProperty.LABEL], [task.title])
             check.connect("toggled", self._task_toggled, task.id)
             box.append(check)
 
             title = Gtk.Label(label=task.title, xalign=0, hexpand=True, wrap=True)
+            title.set_wrap_mode(Pango.WrapMode.WORD_CHAR)
+            title.set_max_width_chars(1)
             if task.completed:
                 title.add_css_class("dim-label")
             box.append(title)
