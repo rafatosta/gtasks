@@ -10,6 +10,8 @@ Aplicativo nativo de tarefas para GNOME (Python, GTK4 e libadwaita).
 
 Abra ou clone `https://github.com/rafatosta/gtasks.git` no Builder e clique em **Run Project**. Configure sua conta Google no GNOME para testar a integração real.
 
+Se uma compilação anterior encerrar com `Settings schema 'io.github.rafatosta.gtasks' is not installed`, use **Rebuild Project** no Builder e execute novamente. A instalação Meson compila os esquemas GSettings no prefixo do aplicativo (`/app` no Flatpak). Não é necessário apagar as preferências nem o diretório de dados do aplicativo.
+
 ## Executar pelo Flatpak
 
 ```sh

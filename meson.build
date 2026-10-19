@@ -21,3 +21,6 @@ configure_file(
 
 install_subdir('gtasks', install_dir: pkgdatadir)
 subdir('data')
+
+gnome = import('gnome')
+gnome.post_install(glib_compile_schemas: true)
