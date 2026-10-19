@@ -121,7 +121,6 @@ class TaskPanel(Gtk.Box):
             check.connect("toggled", self._task_toggled, task.id)
             check.set_margin_start(min(depth, 2) * 12)
             row.add_prefix(check)
-            row.set_activatable_widget(check)
             if task.completed:
                 row.add_css_class("dim-label")
             if self._on_task_action is not None:
@@ -148,6 +147,8 @@ class TaskPanel(Gtk.Box):
                 popup.set_child(actions)
                 menu.set_popover(popup)
                 row.add_suffix(menu)
+                row.set_activatable(True)
+                row.connect("activated", lambda _row, button=menu: button.popup())
             self._list_box.append(row)
 
     def restore_tasks(self) -> None:
