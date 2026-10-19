@@ -50,6 +50,26 @@ class TaskService:
             self._repositories.remember_created(item)
             return item
 
+    def rename_list(self, task_list: TaskList, name: str) -> TaskList:
+        name = name.strip()
+        if not name:
+            raise ValueError("O nome da lista não pode ficar vazio.")
+        with self._source_lock(task_list.source), self._list_lock(task_list):
+            updated = self._repositories.resolve(task_list.source).rename_list(task_list.id, name)
+            if task_list.source != "local":
+                lists = [updated if item.id == task_list.id else item
+                         for item in self.get_lists() if item.source == task_list.source]
+                self.cache_remote_lists(task_list.source, lists)
+            return updated
+
+    def delete_list(self, task_list: TaskList) -> None:
+        with self._source_lock(task_list.source), self._list_lock(task_list):
+            self._repositories.resolve(task_list.source).delete_list(task_list.id)
+            if task_list.source != "local":
+                lists = [item for item in self.get_lists()
+                         if item.source == task_list.source and item.id != task_list.id]
+                self.cache_remote_lists(task_list.source, lists)
+
     def cached_tasks(self, task_list: TaskList) -> list[Task] | None:
         return self._repositories.cached_tasks(task_list)
 
@@ -79,6 +99,9 @@ class TaskService:
                 return
             try:
                 with self._list_lock(task_list):
+                    if not any(item.id == task_list.id and item.source == task_list.source
+                               for item in self.get_lists()):
+                        continue
                     tasks = self.get_tasks(task_list)
                     self._repositories.cache_tasks(task_list, tasks)
             except Exception as error:

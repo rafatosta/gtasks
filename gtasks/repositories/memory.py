@@ -23,6 +23,15 @@ class InMemoryTaskRepository(TaskRepository):
         self._tasks[task_list.id] = []
         return task_list
 
+    def rename_list(self, list_id: str, name: str) -> TaskList:
+        item = replace(self._lists[list_id], name=name)
+        self._lists[list_id] = item
+        return item
+
+    def delete_list(self, list_id: str) -> None:
+        del self._lists[list_id]
+        del self._tasks[list_id]
+
     def list_tasks(self, list_id: str) -> list[Task]:
         return list(self._tasks[list_id])
 

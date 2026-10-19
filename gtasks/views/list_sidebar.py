@@ -18,10 +18,14 @@ class SourceListGroup(Gtk.Box):
         title: str,
         on_create: Callable[[str], None],
         on_select: Callable[[str, str], None],
+        on_edit: Callable[[TaskList], None],
+        on_delete: Callable[[TaskList], None],
     ) -> None:
         super().__init__(orientation=Gtk.Orientation.VERTICAL, spacing=8)
         self.source_id = source_id
         self._on_select = on_select
+        self._on_edit = on_edit
+        self._on_delete = on_delete
         self._rows: dict[Gtk.ListBoxRow, str] = {}
         self._updating = False
 
@@ -66,7 +70,29 @@ class SourceListGroup(Gtk.Box):
             label.set_margin_bottom(10)
             label.set_margin_start(12)
             label.set_margin_end(12)
-            row.set_child(label)
+            label.set_hexpand(True)
+            label.set_ellipsize(Pango.EllipsizeMode.END)
+            label.set_tooltip_text(task_list.name)
+            content = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=4)
+            content.append(label)
+            menu = Gtk.MenuButton(icon_name="view-more-symbolic", valign=Gtk.Align.CENTER)
+            menu.add_css_class("flat")
+            menu.set_tooltip_text(f"Opções de {task_list.name}")
+            popover = Gtk.Popover()
+            actions = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=4)
+            for title, callback in (("Editar lista", self._on_edit),
+                                    ("Excluir lista", self._on_delete)):
+                button = Gtk.Button(label=title)
+                button.add_css_class("flat")
+                def activate(_button, item=task_list, action=callback, popup=popover):
+                    popup.popdown()
+                    action(item)
+                button.connect("clicked", activate)
+                actions.append(button)
+            popover.set_child(actions)
+            menu.set_popover(popover)
+            content.append(menu)
+            row.set_child(content)
             self._list_box.append(row)
             self._rows[row] = task_list.id
             if selected is not None and task_list.id == selected.id:
@@ -95,8 +121,12 @@ class ListSidebar(Gtk.ScrolledWindow):
         self,
         on_create_list: Callable[[str], None],
         on_select_list: Callable[[str, str], None],
+        on_edit_list: Callable[[TaskList], None],
+        on_delete_list: Callable[[TaskList], None],
     ) -> None:
         super().__init__(vexpand=True)
+        self._on_edit_list = on_edit_list
+        self._on_delete_list = on_delete_list
         self._on_create_list = on_create_list
         self._on_select_list = on_select_list
         self._groups: dict[str, SourceListGroup] = {}
@@ -134,6 +164,8 @@ class ListSidebar(Gtk.ScrolledWindow):
             title=title,
             on_create=self._on_create_list,
             on_select=self._selected,
+            on_edit=self._on_edit_list,
+            on_delete=self._on_delete_list,
         )
         self._groups[source_id] = group
         return group

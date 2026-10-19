@@ -86,6 +86,15 @@ class GoogleTasksRepository(TaskRepository):
         item = self._request("POST", "/users/@me/lists", {"title": name})
         return TaskList(id=item["id"], name=item["title"], source=self._account.source)
 
+    def rename_list(self, list_id: str, name: str) -> TaskList:
+        item = self._request(
+            "PATCH", f"/users/@me/lists/{quote(list_id, safe='')}", {"title": name}
+        )
+        return TaskList(id=item["id"], name=item["title"], source=self._account.source)
+
+    def delete_list(self, list_id: str) -> None:
+        self._request("DELETE", f"/users/@me/lists/{quote(list_id, safe='')}")
+
     def list_tasks(self, list_id: str) -> list[Task]:
         tasks = self._all_items(
             f"/lists/{quote(list_id, safe='')}/tasks",

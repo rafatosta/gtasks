@@ -7,6 +7,7 @@ from gi.repository import Adw, Gio, GLib, Gtk
 
 from gtasks.controllers.task_controller import TaskController
 from gtasks.models.task import Task
+from gtasks.models.task_list import TaskList
 from gtasks.views.list_sidebar import ListSidebar
 from gtasks.views.task_panel import TaskPanel
 
@@ -56,6 +57,8 @@ class MainWindow(Adw.ApplicationWindow):
         self._sidebar = ListSidebar(
             on_create_list=self._show_create_list_dialog,
             on_select_list=self._select_list,
+            on_edit_list=self._show_edit_list_dialog,
+            on_delete_list=self._show_delete_list_dialog,
         )
         self._task_panel = TaskPanel(
             on_add_task=self._add_task,
@@ -222,6 +225,67 @@ class MainWindow(Adw.ApplicationWindow):
             lambda _created: self._after_create_list(),
             "Criando lista...",
         )
+
+    def _show_edit_list_dialog(self, task_list: TaskList) -> None:
+        dialog = Adw.AlertDialog.new("Editar lista", "Altere o nome da lista.")
+        entry = Gtk.Entry(text=task_list.name)
+        entry.select_region(0, -1)
+        dialog.set_extra_child(entry)
+        dialog.add_response("cancel", "Cancelar")
+        dialog.add_response("save", "Salvar")
+        dialog.set_response_appearance("save", Adw.ResponseAppearance.SUGGESTED)
+        dialog.set_default_response("save")
+        dialog.set_close_response("cancel")
+        dialog.set_response_enabled("save", bool(entry.get_text().strip()))
+        entry.connect("changed", lambda widget: dialog.set_response_enabled(
+            "save", bool(widget.get_text().strip())
+        ))
+
+        def responded(_dialog, response):
+            if response == "save":
+                self._request(
+                    lambda success, error: self._controller.rename_list_async(
+                        task_list, entry.get_text(), success, error
+                    ),
+                    lambda _updated: self._refresh_lists(),
+                    "Salvando lista...",
+                )
+
+        dialog.connect("response", responded)
+        dialog.present(self)
+
+    def _show_delete_list_dialog(self, task_list: TaskList) -> None:
+        dialog = Adw.AlertDialog.new(
+            "Excluir lista?",
+            f'A lista “{task_list.name}” e todas as suas tarefas serão excluídas. '
+            "Essa ação não pode ser desfeita.",
+        )
+        dialog.add_response("cancel", "Cancelar")
+        dialog.add_response("delete", "Excluir")
+        dialog.set_response_appearance("delete", Adw.ResponseAppearance.DESTRUCTIVE)
+        dialog.set_default_response("cancel")
+        dialog.set_close_response("cancel")
+
+        def deleted(_result):
+            if (self._settings.get_string("last-source") == task_list.source
+                    and self._settings.get_string("last-list-id") == task_list.id):
+                self._settings.set_string("last-source", "")
+                self._settings.set_string("last-list-id", "")
+                self._restore_pending = False
+            self._refresh_lists()
+
+        def responded(_dialog, response):
+            if response == "delete":
+                self._request(
+                    lambda success, error: self._controller.delete_list_async(
+                        task_list, success, error
+                    ),
+                    deleted,
+                    "Excluindo lista...",
+                )
+
+        dialog.connect("response", responded)
+        dialog.present(self)
 
     def _after_create_list(self) -> None:
         self._remember_selection()

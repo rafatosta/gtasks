@@ -46,6 +46,22 @@ class SQLiteTaskRepository(TaskRepository):
             )
         return item
 
+    def rename_list(self, list_id: str, name: str) -> TaskList:
+        with self._connection:
+            cursor = self._connection.execute(
+                "UPDATE task_lists SET name = ? WHERE id = ?", (name, list_id)
+            )
+            if cursor.rowcount == 0:
+                raise KeyError(list_id)
+        return TaskList(id=list_id, name=name)
+
+    def delete_list(self, list_id: str) -> None:
+        with self._connection:
+            self._connection.execute("DELETE FROM tasks WHERE list_id = ?", (list_id,))
+            cursor = self._connection.execute("DELETE FROM task_lists WHERE id = ?", (list_id,))
+            if cursor.rowcount == 0:
+                raise KeyError(list_id)
+
     def list_tasks(self, list_id: str) -> list[Task]:
         rows = self._connection.execute(
             "SELECT id, title, completed FROM tasks WHERE list_id = ? ORDER BY rowid",

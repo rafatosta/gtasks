@@ -134,6 +134,25 @@ class TaskController:
             created, on_error, source=source,
         )
 
+    def rename_list_async(self, task_list: TaskList, name: str, on_success, on_error) -> None:
+        self._run(
+            lambda: self._service.rename_list(task_list, name),
+            on_success, on_error, source=task_list.source,
+        )
+
+    def delete_list_async(self, task_list: TaskList, on_success, on_error) -> None:
+        def deleted(_result) -> None:
+            if (self._selected_list_id == task_list.id
+                    and self._selected_source == task_list.source):
+                self._selected_list_id = None
+                self._selected_source = None
+            on_success(None)
+
+        self._run(
+            lambda: self._service.delete_list(task_list),
+            deleted, on_error, source=task_list.source,
+        )
+
     def cached_tasks(self, task_list: TaskList) -> list[Task] | None:
         return self._service.cached_tasks(task_list)
 
