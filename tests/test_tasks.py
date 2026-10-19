@@ -1,0 +1,44 @@
+import unittest
+
+from gtasks.controllers.task_controller import TaskController
+from gtasks.repositories.memory import InMemoryTaskRepository
+from gtasks.services.task_service import TaskService
+
+
+class TasksTest(unittest.TestCase):
+    def setUp(self) -> None:
+        repository = InMemoryTaskRepository()
+        self.controller = TaskController(TaskService(lists=repository, tasks=repository))
+
+    def test_creating_list_starts_empty(self) -> None:
+        task_list = self.controller.create_list("Trabalho")
+        self.assertEqual(task_list.name, "Trabalho")
+        self.assertEqual(self.controller.get_tasks(), [])
+
+    def test_tasks_belong_to_their_list(self) -> None:
+        first = self.controller.create_list("Trabalho")
+        task = self.controller.create_task("Revisar documentos")
+        second = self.controller.create_list("Pessoal")
+        self.controller.create_task("Comprar pão")
+        self.assertEqual(len(self.controller.get_tasks()), 1)
+        self.controller.select_list(first.id)
+        self.assertEqual(self.controller.get_tasks(), [task])
+        self.controller.select_list(second.id)
+        self.assertEqual(self.controller.get_tasks()[0].title, "Comprar pão")
+
+    def test_can_complete_task(self) -> None:
+        self.controller.create_list("Tarefas")
+        task = self.controller.create_task("Teste")
+        self.controller.set_completed(task.id, True)
+        self.assertTrue(self.controller.get_tasks()[0].completed)
+
+    def test_empty_names_are_rejected(self) -> None:
+        with self.assertRaises(ValueError):
+            self.controller.create_list("  ")
+        self.controller.create_list("Válida")
+        with self.assertRaises(ValueError):
+            self.controller.create_task("   ")
+
+
+if __name__ == "__main__":
+    unittest.main()
