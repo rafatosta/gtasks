@@ -16,7 +16,7 @@ from gtasks.repositories.sqlite import SQLiteTaskRepository
 from gtasks.repositories.registry import RepositoryRegistry
 from gtasks.services.task_service import TaskService
 from gtasks.views.main_window import MainWindow
-from gtasks.views.about_dialog import GTasksAboutDialog
+from gtasks.views.about_dialog import create_about_dialog
 
 
 class GTasksApplication(Adw.Application):
@@ -64,4 +64,4 @@ class GTasksApplication(Adw.Application):
         if window is None:
             return
 
-        GTasksAboutDialog(version=self.VERSION).present(window)
+        create_about_dialog(version=self.VERSION).present(window)

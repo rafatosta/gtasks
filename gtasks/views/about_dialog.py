@@ -6,11 +6,9 @@ gi.require_version("Gtk", "4.0")
 from gi.repository import Adw, Gtk
 
 
-class GTasksAboutDialog(Adw.AboutDialog):
-    """Native GNOME about dialog for the GTasks application."""
-
-    def __init__(self, version: str) -> None:
-        super().__init__(
+def create_about_dialog(version: str) -> Adw.AboutDialog:
+    """Construct the GNOME dialog; AboutDialog is a final GObject type."""
+    return Adw.AboutDialog(
             application_name="GTasks",
             application_icon="io.github.rafatosta.gtasks",
             developer_name="Rafael Tosta",
