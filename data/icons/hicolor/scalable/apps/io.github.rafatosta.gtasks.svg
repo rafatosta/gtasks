@@ -1,5 +1,17 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
-  <rect x="12" y="12" width="104" height="104" rx="24" fill="#3584e4"/>
-  <path d="M37 64 54 80 92 43" fill="none" stroke="#fff" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
+  <title>GTasks</title>
+  <desc>Lista de tarefas com caixas de seleção e uma marca verde de conclusão, no estilo GNOME.</desc>
+  <rect x="16" y="12" width="88" height="104" rx="12" fill="#c0bfbc"/>
+  <rect x="16" y="8" width="88" height="104" rx="12" fill="#f6f5f4"/>
+  <rect x="26" y="22" width="20" height="20" rx="4" fill="#33d17a"/>
+  <path d="m31.5 32 3.5 3.5 6-7" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M54 32h36" fill="none" stroke="#5e5c64" stroke-width="6" stroke-linecap="round"/>
+  <rect x="27.5" y="49.5" width="17" height="17" rx="3" fill="none" stroke="#c0bfbc" stroke-width="3"/>
+  <path d="M54 58h28" fill="none" stroke="#5e5c64" stroke-width="6" stroke-linecap="round"/>
+  <rect x="27.5" y="75.5" width="17" height="17" rx="3" fill="none" stroke="#c0bfbc" stroke-width="3"/>
+  <path d="M54 84h22" fill="none" stroke="#5e5c64" stroke-width="6" stroke-linecap="round"/>
+  <path d="m53 83 9-9q3-3 6 0l12 12 29-32q3-3 6 0l8 8q3 3 0 6l-39 43q-3 3-6 0L53 89q-3-3 0-6Z" transform="translate(0 3)" fill="#26a269"/>
+  <path d="m53 83 9-9q3-3 6 0l12 12 29-32q3-3 6 0l8 8q3 3 0 6l-39 43q-3 3-6 0L53 89q-3-3 0-6Z" fill="#33d17a"/>
+  <path d="M 68 74 L 80 86 L 66.562 100.758 L 53 89 C 51 87 51 85 53 83 L 62 74 C 64 72 66 72 68 74 Z" fill="#2ec27e"/>
 </svg>
