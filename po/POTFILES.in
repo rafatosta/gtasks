@@ -1,0 +1,15 @@
+gtasks/auth/goa.py
+gtasks/controllers/task_controller.py
+gtasks/repositories/google.py
+gtasks/repositories/registry.py
+gtasks/services/task_service.py
+gtasks/views/about_dialog.py
+gtasks/views/list_sidebar.py
+gtasks/views/main_window.py
+gtasks/views/preferences_dialog.py
+gtasks/views/shortcuts_dialog.py
+gtasks/views/task_editor.py
+gtasks/views/task_panel.py
+data/io.github.rafatosta.gtasks.desktop.in
+data/io.github.rafatosta.gtasks.metainfo.xml.in
+data/io.github.rafatosta.gtasks.gschema.xml

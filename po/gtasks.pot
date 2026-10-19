@@ -1,0 +1,577 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the GTasks package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: GTasks 0.1.0\n"
+"Report-Msgid-Bugs-To: https://github.com/rafatosta/gtasks/issues\n"
+"POT-Creation-Date: 2026-10-19 15:49-0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: gtasks/auth/goa.py:44
+msgid "GNOME Online Accounts could not be accessed."
+msgstr ""
+
+#: gtasks/auth/goa.py:75
+msgid ""
+"Authorization could not be obtained. Check the Google account in Online "
+"Accounts."
+msgstr ""
+
+#: gtasks/auth/goa.py:78
+msgid "GNOME did not return an access token."
+msgstr ""
+
+#: gtasks/controllers/task_controller.py:98
+#: gtasks/controllers/task_controller.py:108
+msgid "Select a list first"
+msgstr ""
+
+#: gtasks/repositories/google.py:48
+msgid ""
+"Google authorization has expired. Authorize the account again in Online "
+"Accounts."
+msgstr ""
+
+#: gtasks/repositories/google.py:51
+msgid ""
+"Google Tasks access was denied. Check the account permissions and whether "
+"the Tasks API is enabled."
+msgstr ""
+
+#: gtasks/repositories/google.py:54
+msgid "The list or task no longer exists in Google Tasks."
+msgstr ""
+
+#: gtasks/repositories/google.py:56
+msgid "The Google Tasks request limit has been reached. Try again later."
+msgstr ""
+
+#: gtasks/repositories/google.py:58
+#, python-brace-format
+msgid "Google Tasks error (HTTP {code})."
+msgstr ""
+
+#: gtasks/repositories/google.py:61
+msgid "Could not connect to Google Tasks."
+msgstr ""
+
+#: gtasks/repositories/google.py:63
+msgid "Invalid response from Google Tasks."
+msgstr ""
+
+#: gtasks/repositories/registry.py:53
+#, python-brace-format
+msgid "Data source unavailable: {source}"
+msgstr ""
+
+#: gtasks/services/task_service.py:48 gtasks/services/task_service.py:59
+msgid "List name cannot be empty"
+msgstr ""
+
+#: gtasks/services/task_service.py:74 gtasks/views/list_sidebar.py:90
+msgid "The last list in an account cannot be deleted."
+msgstr ""
+
+#: gtasks/services/task_service.py:153
+msgid "The title must contain between 1 and 1024 characters."
+msgstr ""
+
+#: gtasks/services/task_service.py:160
+msgid "Details can contain up to 8192 characters."
+msgstr ""
+
+#: gtasks/services/task_service.py:165
+msgid "Choose a valid date."
+msgstr ""
+
+#: gtasks/services/task_service.py:192
+msgid "Choose another list from the same account or this device."
+msgstr ""
+
+#: gtasks/views/about_dialog.py:18
+msgid "A task manager for GNOME with local lists and Google Tasks."
+msgstr ""
+
+#: gtasks/views/list_sidebar.py:49
+msgid "Create List"
+msgstr ""
+
+#: gtasks/views/list_sidebar.py:81 gtasks/views/task_panel.py:143
+#, python-brace-format
+msgid "Options for {name}"
+msgstr ""
+
+#: gtasks/views/list_sidebar.py:84 gtasks/views/main_window.py:290
+msgid "Edit List"
+msgstr ""
+
+#: gtasks/views/list_sidebar.py:85 gtasks/views/list_sidebar.py:88
+msgid "Delete List"
+msgstr ""
+
+#: gtasks/views/list_sidebar.py:145 gtasks/views/main_window.py:501
+msgid "On This Device"
+msgstr ""
+
+#: gtasks/views/list_sidebar.py:190
+msgid "Add a Google account in Settings → Online Accounts."
+msgstr ""
+
+#: gtasks/views/main_window.py:56 gtasks/views/preferences_dialog.py:17
+#: gtasks/views/shortcuts_dialog.py:17
+msgid "Preferences"
+msgstr ""
+
+#: gtasks/views/main_window.py:57 gtasks/views/shortcuts_dialog.py:12
+#: gtasks/views/shortcuts_dialog.py:18
+msgid "Keyboard Shortcuts"
+msgstr ""
+
+#: gtasks/views/main_window.py:58
+msgid "About GTasks"
+msgstr ""
+
+#: gtasks/views/main_window.py:59
+msgid "Quit"
+msgstr ""
+
+#: gtasks/views/main_window.py:61
+msgid "Main Menu (F10)"
+msgstr ""
+
+#: gtasks/views/main_window.py:66 gtasks/views/shortcuts_dialog.py:19
+msgid "Refresh Lists and Tasks"
+msgstr ""
+
+#: gtasks/views/main_window.py:85
+msgid "Lists"
+msgstr ""
+
+#: gtasks/views/main_window.py:96 gtasks/views/main_window.py:497
+msgid "Tasks"
+msgstr ""
+
+#: gtasks/views/main_window.py:195
+msgid "The list or task is no longer available."
+msgstr ""
+
+#: gtasks/views/main_window.py:199
+msgid "The operation could not be completed."
+msgstr ""
+
+#: gtasks/views/main_window.py:229
+msgid "Looking for Google accounts…"
+msgstr ""
+
+#: gtasks/views/main_window.py:249
+msgid "The account could not be synchronized."
+msgstr ""
+
+#: gtasks/views/main_window.py:254
+msgid "Offline with no cached tasks."
+msgstr ""
+
+#: gtasks/views/main_window.py:259 gtasks/views/main_window.py:260
+msgid "New List"
+msgstr ""
+
+#: gtasks/views/main_window.py:259
+msgid "Choose a name for the list."
+msgstr ""
+
+#: gtasks/views/main_window.py:264 gtasks/views/main_window.py:295
+#: gtasks/views/main_window.py:323 gtasks/views/main_window.py:412
+#: gtasks/views/main_window.py:432 gtasks/views/main_window.py:461
+#: gtasks/views/task_editor.py:22
+msgid "Cancel"
+msgstr ""
+
+#: gtasks/views/main_window.py:265
+msgid "Create"
+msgstr ""
+
+#: gtasks/views/main_window.py:286
+msgid "Creating list…"
+msgstr ""
+
+#: gtasks/views/main_window.py:290
+msgid "Change the name of the list."
+msgstr ""
+
+#: gtasks/views/main_window.py:296 gtasks/views/task_editor.py:25
+msgid "Save"
+msgstr ""
+
+#: gtasks/views/main_window.py:312
+msgid "Saving list…"
+msgstr ""
+
+#: gtasks/views/main_window.py:320
+msgid "Delete List?"
+msgstr ""
+
+#: gtasks/views/main_window.py:321
+#, python-brace-format
+msgid ""
+"The list “{name}” and all its tasks will be deleted. This cannot be undone."
+msgstr ""
+
+#: gtasks/views/main_window.py:324 gtasks/views/main_window.py:413
+msgid "Delete"
+msgstr ""
+
+#: gtasks/views/main_window.py:344
+msgid "Deleting list…"
+msgstr ""
+
+#: gtasks/views/main_window.py:390
+msgid "Saving task…"
+msgstr ""
+
+#: gtasks/views/main_window.py:408
+#, python-brace-format
+msgid "The task “{title}” and its subtasks will be deleted."
+msgstr ""
+
+#: gtasks/views/main_window.py:410
+msgid "This also deletes the task in the original Google document or space."
+msgstr ""
+
+#: gtasks/views/main_window.py:411
+msgid "Delete Task?"
+msgstr ""
+
+#: gtasks/views/main_window.py:422
+msgid "Deleting task…"
+msgstr ""
+
+#: gtasks/views/main_window.py:427 gtasks/views/task_panel.py:147
+msgid "Add Subtask"
+msgstr ""
+
+#: gtasks/views/main_window.py:427
+#, python-brace-format
+msgid "In “{title}”."
+msgstr ""
+
+#: gtasks/views/main_window.py:428
+msgid "Subtask Title"
+msgstr ""
+
+#: gtasks/views/main_window.py:433
+msgid "Add"
+msgstr ""
+
+#: gtasks/views/main_window.py:446
+msgid "Creating subtask…"
+msgstr ""
+
+#: gtasks/views/main_window.py:454
+msgid "Create another list in this account or on this device to move the task."
+msgstr ""
+
+#: gtasks/views/main_window.py:456
+msgid "Move Task"
+msgstr ""
+
+#: gtasks/views/main_window.py:456
+msgid "Choose a list from the same account or device."
+msgstr ""
+
+#: gtasks/views/main_window.py:458
+msgid "List"
+msgstr ""
+
+#: gtasks/views/main_window.py:462
+msgid "Move"
+msgstr ""
+
+#: gtasks/views/main_window.py:471
+msgid "Moving task…"
+msgstr ""
+
+#: gtasks/views/main_window.py:490
+msgid "Updating task…"
+msgstr ""
+
+#: gtasks/views/main_window.py:507
+msgid "Select a List to View Tasks"
+msgstr ""
+
+#: gtasks/views/main_window.py:508 gtasks/views/task_panel.py:69
+msgid "Create a List to Get Started"
+msgstr ""
+
+#: gtasks/views/main_window.py:520
+msgid "No Pending Tasks"
+msgstr ""
+
+#: gtasks/views/main_window.py:523
+msgid "Synchronizing tasks…"
+msgstr ""
+
+#: gtasks/views/main_window.py:526
+msgid "No local copy is available. Refresh to synchronize."
+msgstr ""
+
+#: gtasks/views/preferences_dialog.py:22
+msgid "Synchronization"
+msgstr ""
+
+#: gtasks/views/preferences_dialog.py:26
+msgid "Synchronize on Startup"
+msgstr ""
+
+#: gtasks/views/preferences_dialog.py:27
+msgid "Refresh Google accounts when GTasks starts"
+msgstr ""
+
+#: gtasks/views/preferences_dialog.py:35
+msgid "Disabled"
+msgstr ""
+
+#: gtasks/views/preferences_dialog.py:35
+msgid "Every 5 minutes"
+msgstr ""
+
+#: gtasks/views/preferences_dialog.py:35
+msgid "Every 15 minutes"
+msgstr ""
+
+#: gtasks/views/preferences_dialog.py:36
+msgid "Every 30 minutes"
+msgstr ""
+
+#: gtasks/views/preferences_dialog.py:36
+msgid "Every 60 minutes"
+msgstr ""
+
+#: gtasks/views/preferences_dialog.py:39
+msgid "Automatic Refresh"
+msgstr ""
+
+#: gtasks/views/preferences_dialog.py:40
+msgid "Check for changes while GTasks is open"
+msgstr ""
+
+#: gtasks/views/preferences_dialog.py:56
+msgid "Appearance"
+msgstr ""
+
+#: gtasks/views/preferences_dialog.py:60
+msgid "Show Completed Tasks"
+msgstr ""
+
+#: gtasks/views/preferences_dialog.py:61
+msgid "Show completed tasks alongside pending tasks"
+msgstr ""
+
+#: gtasks/views/preferences_dialog.py:69
+msgid "Restore Last List"
+msgstr ""
+
+#: gtasks/views/preferences_dialog.py:70
+msgid "Reopen the last selected list on startup"
+msgstr ""
+
+#: gtasks/views/preferences_dialog.py:77
+msgid "Writing"
+msgstr ""
+
+#: gtasks/views/preferences_dialog.py:79
+msgid "Check Spelling"
+msgstr ""
+
+#: gtasks/views/preferences_dialog.py:80
+msgid "Underline words and offer suggestions in text fields"
+msgstr ""
+
+#: gtasks/views/preferences_dialog.py:87
+msgid "Storage"
+msgstr ""
+
+#: gtasks/views/preferences_dialog.py:89
+msgid ""
+"Local lists are saved on this device. Google accounts keep a copy for "
+"offline viewing; remote changes require a connection."
+msgstr ""
+
+#: gtasks/views/shortcuts_dialog.py:13
+msgid "General"
+msgstr ""
+
+#: gtasks/views/shortcuts_dialog.py:15
+msgid "Quit Application"
+msgstr ""
+
+#: gtasks/views/shortcuts_dialog.py:16
+msgid "Close Window or Dialog"
+msgstr ""
+
+#: gtasks/views/shortcuts_dialog.py:23
+msgid "Navigation"
+msgstr ""
+
+#: gtasks/views/shortcuts_dialog.py:24
+msgid "Open Main Menu"
+msgstr ""
+
+#: gtasks/views/shortcuts_dialog.py:25
+msgid "Go Back"
+msgstr ""
+
+#: gtasks/views/shortcuts_dialog.py:26
+msgid "Close Dialog or Menu"
+msgstr ""
+
+#: gtasks/views/task_editor.py:19
+msgid "Edit Task"
+msgstr ""
+
+#: gtasks/views/task_editor.py:34
+msgid "Title"
+msgstr ""
+
+#: gtasks/views/task_editor.py:40
+msgid "Details"
+msgstr ""
+
+#: gtasks/views/task_editor.py:40
+msgid "Right-click to see suggestions and choose a language."
+msgstr ""
+
+#: gtasks/views/task_editor.py:45
+msgid "The details of this task are managed by Google."
+msgstr ""
+
+#: gtasks/views/task_editor.py:50
+msgid "Task Details"
+msgstr ""
+
+#: gtasks/views/task_editor.py:54
+msgid "Date"
+msgstr ""
+
+#: gtasks/views/task_editor.py:54
+msgid "The day scheduled for this task."
+msgstr ""
+
+#: gtasks/views/task_editor.py:55
+msgid "Set a Date"
+msgstr ""
+
+#: gtasks/views/task_editor.py:75
+msgid "Today"
+msgstr ""
+
+#: gtasks/views/task_editor.py:75
+msgid "Tomorrow"
+msgstr ""
+
+#: gtasks/views/task_editor.py:113
+msgid "The task could not be saved. Try again."
+msgstr ""
+
+#: gtasks/views/task_panel.py:42
+msgid "Add a task"
+msgstr ""
+
+#: gtasks/views/task_panel.py:50
+msgid "Add Task"
+msgstr ""
+
+#: gtasks/views/task_panel.py:100
+msgid "This List Has No Tasks"
+msgstr ""
+
+#: gtasks/views/task_panel.py:124
+#, python-brace-format
+msgid "Subtask of {title}"
+msgstr ""
+
+#: gtasks/views/task_panel.py:124
+msgid "Subtask"
+msgstr ""
+
+#: gtasks/views/task_panel.py:126
+#, python-brace-format
+msgid "Date: {date}"
+msgstr ""
+
+#: gtasks/views/task_panel.py:133
+msgid "Mark as Incomplete"
+msgstr ""
+
+#: gtasks/views/task_panel.py:133
+msgid "Complete Task"
+msgstr ""
+
+#: gtasks/views/task_panel.py:146
+msgid "Edit Details and Date"
+msgstr ""
+
+#: gtasks/views/task_panel.py:148
+msgid "Move to Another List"
+msgstr ""
+
+#: gtasks/views/task_panel.py:149
+msgid "Delete Task"
+msgstr ""
+
+#: data/io.github.rafatosta.gtasks.desktop.in:3
+#: data/io.github.rafatosta.gtasks.metainfo.xml.in:4
+msgid "GTasks"
+msgstr ""
+
+#: data/io.github.rafatosta.gtasks.desktop.in:4
+#: data/io.github.rafatosta.gtasks.metainfo.xml.in:5
+msgid "Tasks for GNOME"
+msgstr ""
+
+#: data/io.github.rafatosta.gtasks.metainfo.xml.in:9
+msgid ""
+"Manage local and Google Tasks lists in one native GNOME application. "
+"Previously synchronized tasks can be viewed offline."
+msgstr ""
+
+#: data/io.github.rafatosta.gtasks.gschema.xml:6
+msgid "Synchronize Google accounts on startup"
+msgstr ""
+
+#: data/io.github.rafatosta.gtasks.gschema.xml:10
+msgid "Minutes between background synchronizations (0 disables it)"
+msgstr ""
+
+#: data/io.github.rafatosta.gtasks.gschema.xml:14
+msgid "Display completed tasks"
+msgstr ""
+
+#: data/io.github.rafatosta.gtasks.gschema.xml:18
+msgid "Restore the previously selected list"
+msgstr ""
+
+#: data/io.github.rafatosta.gtasks.gschema.xml:22
+msgid "Check spelling in editable text fields"
+msgstr ""
+
+#: data/io.github.rafatosta.gtasks.gschema.xml:26
+msgid "Dictionary used for spelling suggestions"
+msgstr ""
+
+#: data/io.github.rafatosta.gtasks.gschema.xml:30
+msgid "Source of the last selected list"
+msgstr ""
+
+#: data/io.github.rafatosta.gtasks.gschema.xml:34
+msgid "Identifier of the last selected list"
+msgstr ""

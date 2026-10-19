@@ -10,7 +10,7 @@
   </description>
   <launchable type="desktop-id">io.github.rafatosta.gtasks.desktop</launchable>
   <developer id="io.github.rafatosta">
-    <name>Rafael Tosta</name>
+    <name translate="no">Rafael Tosta</name>
   </developer>
   <url type="homepage">https://github.com/rafatosta/gtasks</url>
   <url type="bugtracker">https://github.com/rafatosta/gtasks/issues</url>

@@ -5,6 +5,7 @@ from urllib.error import HTTPError, URLError
 from urllib.parse import quote, urlencode
 from urllib.request import Request, urlopen
 
+from gtasks.i18n import _
 from gtasks.models.google_account import GoogleAccount
 from gtasks.models.task import Task
 from gtasks.models.task_list import TaskList
@@ -44,23 +45,22 @@ class GoogleTasksRepository(TaskRepository):
                 return json.loads(content) if content else {}
         except HTTPError as error:
             if error.code == 401:
-                message = "A autorização Google expirou. Reautorize em Contas Online."
+                message = _("Google authorization has expired. Authorize the account again in Online Accounts.")
             elif error.code == 403:
                 message = (
-                    "Acesso ao Google Tasks negado. Verifique as permissões da conta "
-                    "e se a API Tasks está habilitada."
+                    _("Google Tasks access was denied. Check the account permissions and whether the Tasks API is enabled.")
                 )
             elif error.code == 404:
-                message = "A lista ou tarefa não existe mais no Google Tasks."
+                message = _("The list or task no longer exists in Google Tasks.")
             elif error.code == 429:
-                message = "Limite de requisições do Google Tasks atingido. Tente depois."
+                message = _("The Google Tasks request limit has been reached. Try again later.")
             else:
-                message = f"Erro do Google Tasks (HTTP {error.code})."
+                message = _("Google Tasks error (HTTP {code}).").format(code=error.code)
             raise GoogleTasksError(message) from None
         except (URLError, TimeoutError, OSError):
-            raise GoogleTasksError("Não foi possível conectar ao Google Tasks.") from None
+            raise GoogleTasksError(_("Could not connect to Google Tasks.")) from None
         except (ValueError, UnicodeDecodeError):
-            raise GoogleTasksError("Resposta inválida do Google Tasks.") from None
+            raise GoogleTasksError(_("Invalid response from Google Tasks.")) from None
 
     def _all_items(self, path: str, params=None) -> list[dict]:
         items = []

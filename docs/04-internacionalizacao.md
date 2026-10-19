@@ -1,6 +1,6 @@
 # Internacionalização e traduções
 
-**Status:** convenção obrigatória desde o primeiro componente de interface.
+**Status:** implementado com Gettext, catálogo `pt_BR`, integração Meson e metadados localizados.
 
 ## 1. Política de idiomas
 
@@ -22,11 +22,11 @@ po/
 └── meson.build
 
 data/
-├── ui/*.blp
 ├── <APP_ID>.desktop.in
 └── <APP_ID>.metainfo.xml.in
 
 gtasks/
+├── i18n.py
 └── ... arquivos Python com strings marcadas
 ```
 
@@ -86,3 +86,45 @@ O uso de Weblate ou plataforma de tradução poderá ser incorporado quando o vo
 A política do Flathub exige localização inglesa completa e rejeita traduções automáticas de baixa qualidade. O projeto mantém **revisão humana** da terminologia e do sentido, independentemente de ferramentas de apoio usadas na edição.
 
 Referência: [Flathub — Localisation policy](https://docs.flathub.org/docs/for-app-authors/requirements#localisation-policy).
+
+## 7. Implementação e validação
+
+`gtasks/i18n.py` configura o locale e o domínio `gtasks`, com helpers explícitos
+`_`, `ngettext` e `pgettext`. O launcher gerado por Meson informa o diretório de
+catálogos instalado. Em execução a partir das fontes, `GTASKS_LOCALEDIR` permite
+apontar para catálogos compilados sem alterar o idioma salvo no desktop.
+
+O template `po/gtasks.pot` e a tradução `po/pt_BR.po` são versionados. Para
+atualizar as mensagens em um ambiente com as dependências de construção:
+
+```sh
+meson compile -C _build gtasks-pot
+meson compile -C _build gtasks-update-po
+msgfmt --check --check-format -o /tmp/gtasks.mo po/pt_BR.po
+```
+
+Para testar a tradução sem instalar o aplicativo:
+
+```sh
+mkdir -p _build/locale/pt_BR/LC_MESSAGES
+msgfmt -o _build/locale/pt_BR/LC_MESSAGES/gtasks.mo po/pt_BR.po
+GTASKS_LOCALEDIR="$PWD/_build/locale" LANGUAGE=pt_BR LC_ALL=pt_BR.UTF-8 _build/gtasks
+GTASKS_LOCALEDIR="$PWD/_build/locale" LANGUAGE=en_US LC_ALL=en_US.UTF-8 _build/gtasks
+```
+
+O locale indicado precisa estar instalado para validar também o formato das
+datas. Sem um locale disponível, o aplicativo usa `C.UTF-8`; sem um catálogo de
+tradução, usa o inglês de origem. O idioma do corretor ortográfico é independente
+do idioma da interface.
+
+O Meson gera `.desktop` e AppStream a partir dos templates `.in` e instala os
+catálogos em `share/locale`. Os `.mo` não são versionados. Nomes próprios, IDs,
+URLs, nomes das listas e textos das tarefas não são traduzidos automaticamente.
+Mensagens parametrizadas são traduzidas por inteiro antes de inserir os valores.
+
+Os testes verificam seleção de idioma, fallback, cobertura dos textos marcados,
+placeholders, preservação de conteúdo e geração de metadados em inglês e
+português. A compilação/instalação dos arquivos `po/meson.build` e
+`data/meson.build` foi validada em um projeto Meson isolado. A interface foi
+verificada nos dois idiomas, em larguras de 360 e 900 pixels. Isso não substitui
+uma compilação integral do Flatpak.

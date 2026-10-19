@@ -2,6 +2,7 @@ from collections.abc import Callable
 from concurrent.futures import Future, ThreadPoolExecutor
 from typing import TypeVar
 
+from gtasks.i18n import _
 from gtasks.models.task import Task
 from gtasks.models.task_list import TaskList
 from gtasks.services.task_service import TaskService
@@ -94,7 +95,7 @@ class TaskController:
     def create_task(self, title: str) -> Task:
         selected = self.selected_list
         if selected is None:
-            raise ValueError("Select a list first")
+            raise ValueError(_("Select a list first"))
         return self._service.create_task(selected, title)
 
     def get_tasks(self) -> list[Task]:
@@ -104,7 +105,7 @@ class TaskController:
     def set_completed(self, task_id: str, completed: bool) -> Task:
         selected = self.selected_list
         if selected is None:
-            raise ValueError("Select a list first")
+            raise ValueError(_("Select a list first"))
         return self._service.set_completed(selected, task_id, completed)
 
     def discover_remote_async(self, on_success, on_error) -> None:

@@ -6,6 +6,7 @@ gi.require_version("Gtk", "4.0")
 
 from gi.repository import Gtk, Pango
 
+from gtasks.i18n import _
 from gtasks.models.task_list import TaskList
 
 
@@ -45,7 +46,7 @@ class SourceListGroup(Gtk.Box):
 
         create = Gtk.Button(icon_name="list-add-symbolic")
         create.add_css_class("flat")
-        create.set_tooltip_text("Criar lista")
+        create.set_tooltip_text(_("Create List"))
         create.connect("clicked", lambda _button: on_create(self.source_id))
         header.append(create)
         self.append(header)
@@ -77,16 +78,16 @@ class SourceListGroup(Gtk.Box):
             content.append(label)
             menu = Gtk.MenuButton(icon_name="view-more-symbolic", valign=Gtk.Align.CENTER)
             menu.add_css_class("flat")
-            menu.set_tooltip_text(f"Opções de {task_list.name}")
+            menu.set_tooltip_text(_("Options for {name}").format(name=task_list.name))
             popover = Gtk.Popover()
             actions = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=4)
-            for title, callback in (("Editar lista", self._on_edit),
-                                    ("Excluir lista", self._on_delete)):
+            for title, callback in ((_("Edit List"), self._on_edit),
+                                    (_("Delete List"), self._on_delete)):
                 button = Gtk.Button(label=title)
                 button.add_css_class("flat")
-                if title == "Excluir lista" and self.source_id != "local" and len(lists) <= 1:
+                if title == _("Delete List") and self.source_id != "local" and len(lists) <= 1:
                     button.set_sensitive(False)
-                    button.set_tooltip_text("A última lista da conta não pode ser excluída.")
+                    button.set_tooltip_text(_("The last list in an account cannot be deleted."))
                 def activate(_button, item=task_list, action=callback, popup=popover):
                     popup.popdown()
                     action(item)
@@ -141,7 +142,7 @@ class ListSidebar(Gtk.ScrolledWindow):
         sidebar.set_margin_end(12)
         sidebar.set_margin_bottom(12)
 
-        local = self._new_group("local", "Neste dispositivo")
+        local = self._new_group("local", _("On This Device"))
         sidebar.append(local)
 
         google = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=12)
@@ -186,7 +187,7 @@ class ListSidebar(Gtk.ScrolledWindow):
 
         if not accounts:
             hint = Gtk.Label(
-                label="Adicione uma conta Google em Configurações → Contas Online.",
+                label=_("Add a Google account in Settings → Online Accounts."),
                 wrap_mode=Pango.WrapMode.WORD_CHAR,
                 xalign=0,
                 wrap=True,

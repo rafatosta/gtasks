@@ -8,6 +8,7 @@ gi.require_version("Adw", "1")
 gi.require_version("Gtk", "4.0")
 from gi.repository import Adw, Gio, GLib, Gtk
 
+from gtasks.i18n import _
 from gtasks.models.task import Task
 from gtasks.views.spellcheck import attach_entry_spellcheck, create_details_view
 
@@ -15,13 +16,13 @@ from gtasks.views.spellcheck import attach_entry_spellcheck, create_details_view
 def create_task_editor(
     task: Task, on_save: Callable, settings: Gio.Settings | None = None
 ) -> Adw.Dialog:
-    dialog = Adw.Dialog(title="Editar tarefa", content_width=440, content_height=550)
+    dialog = Adw.Dialog(title=_("Edit Task"), content_width=440, content_height=550)
     toolbar = Adw.ToolbarView()
     header = Adw.HeaderBar(show_start_title_buttons=False, show_end_title_buttons=False)
-    cancel = Gtk.Button(label="Cancelar")
+    cancel = Gtk.Button(label=_("Cancel"))
     cancel.connect("clicked", lambda _button: dialog.close())
     header.pack_start(cancel)
-    save = Gtk.Button(label="Salvar")
+    save = Gtk.Button(label=_("Save"))
     save.add_css_class("suggested-action")
     header.pack_end(save)
     toolbar.add_top_bar(header)
@@ -30,28 +31,28 @@ def create_task_editor(
     for side in ("top", "bottom", "start", "end"):
         getattr(body, f"set_margin_{side}")(18)
     group = Adw.PreferencesGroup()
-    title = Adw.EntryRow(title="Título", text=task.title)
+    title = Adw.EntryRow(title=_("Title"), text=task.title)
     attach_entry_spellcheck(title, settings)
     group.add(title)
     body.append(group)
 
     details_group = Adw.PreferencesGroup(
-        title="Detalhes", description="Use o botão direito para ver sugestões e escolher o idioma."
+        title=_("Details"), description=_("Right-click to see suggestions and choose a language.")
     )
     notes = create_details_view(task.notes, settings)
     notes.set_sensitive(not task.assigned)
     if task.assigned:
-        details_group.set_description("Os detalhes desta tarefa são gerenciados pelo Google.")
+        details_group.set_description(_("The details of this task are managed by Google."))
     notes_scroll = Gtk.ScrolledWindow(min_content_height=100)
     notes_scroll.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
     notes_scroll.add_css_class("card")
     notes_scroll.set_child(notes)
-    notes.update_property([Gtk.AccessibleProperty.LABEL], ["Detalhes da tarefa"])
+    notes.update_property([Gtk.AccessibleProperty.LABEL], [_("Task Details")])
     details_group.add(notes_scroll)
     body.append(details_group)
 
-    date_group = Adw.PreferencesGroup(title="Data", description="Dia programado para realizar a tarefa.")
-    enabled = Adw.SwitchRow(title="Definir uma data", active=task.due is not None)
+    date_group = Adw.PreferencesGroup(title=_("Date"), description=_("The day scheduled for this task."))
+    enabled = Adw.SwitchRow(title=_("Set a Date"), active=task.due is not None)
     date_group.add(enabled)
     calendar = Gtk.Calendar()
     calendar.set_show_day_names(True)
@@ -63,7 +64,7 @@ def create_task_editor(
     date_button.set_sensitive(enabled.get_active())
 
     def update_date(*_args):
-        date_button.set_label(calendar.get_date().format("%d/%m/%Y"))
+        date_button.set_label(calendar.get_date().format("%x"))
 
     calendar.connect("day-selected", update_date)
     update_date()
@@ -71,7 +72,7 @@ def create_task_editor(
     dates = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
     dates.set_margin_top(8)
     dates.append(date_button)
-    for label, offset in (("Hoje", 0), ("Amanhã", 1)):
+    for label, offset in ((_("Today"), 0), (_("Tomorrow"), 1)):
         button = Gtk.Button(label=label)
         def choose(_button, days=offset):
             day = date.today() + timedelta(days=days)
@@ -109,7 +110,7 @@ def create_task_editor(
             dialog.set_can_close(True)
             toolbar.set_sensitive(True)
             error_label.set_label(str(error) if isinstance(error, (ValueError, RuntimeError))
-                                  else "Não foi possível salvar a tarefa. Tente novamente.")
+                                  else _("The task could not be saved. Try again."))
             error_label.set_visible(True)
         on_save(title.get_text(), None if task.assigned else text, due, succeeded, failed)
     save.connect("clicked", submit)

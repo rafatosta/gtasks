@@ -2,6 +2,7 @@
 
 from gi.repository import Gio, GLib
 
+from gtasks.i18n import _
 from gtasks.models.google_account import GoogleAccount
 
 
@@ -40,7 +41,7 @@ class GoaAuthProvider:
             )
             objects = reply.unpack()[0]
         except GLib.Error as error:
-            raise GoaError("Não foi possível acessar as Contas Online do GNOME.") from error
+            raise GoaError(_("GNOME Online Accounts could not be accessed.")) from error
 
         accounts = []
         for path, interfaces in objects.items():
@@ -71,8 +72,8 @@ class GoaAuthProvider:
             token = reply.unpack()[0]
         except GLib.Error as error:
             raise GoaError(
-                "Não foi possível obter autorização. Verifique a conta Google nas Contas Online."
+                _("Authorization could not be obtained. Check the Google account in Online Accounts.")
             ) from error
         if not token:
-            raise GoaError("O GNOME não retornou um token de acesso.")
+            raise GoaError(_("GNOME did not return an access token."))
         return token

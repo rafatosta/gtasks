@@ -3,6 +3,7 @@ from threading import Lock
 from datetime import date
 from contextlib import ExitStack
 
+from gtasks.i18n import _
 from gtasks.models.task import Task
 from gtasks.models.task_list import TaskList
 from gtasks.repositories.registry import RemoteSource, RepositoryRegistry
@@ -44,7 +45,7 @@ class TaskService:
     def create_list(self, name: str, source: str = "local") -> TaskList:
         name = name.strip()
         if not name:
-            raise ValueError("List name cannot be empty")
+            raise ValueError(_("List name cannot be empty"))
         if source == "local":
             return self._repositories.resolve("local").create_list(name)
         with self._source_lock(source):
@@ -55,7 +56,7 @@ class TaskService:
     def rename_list(self, task_list: TaskList, name: str) -> TaskList:
         name = name.strip()
         if not name:
-            raise ValueError("O nome da lista não pode ficar vazio.")
+            raise ValueError(_("List name cannot be empty"))
         with self._source_lock(task_list.source), self._list_lock(task_list):
             updated = self._repositories.resolve(task_list.source).rename_list(task_list.id, name)
             if task_list.source != "local":
@@ -70,7 +71,7 @@ class TaskService:
                 # Check the account itself: the cached index may be out of date.
                 lists = self.load_remote_lists(task_list.source)
                 if len(lists) <= 1:
-                    raise ValueError("A última lista da conta não pode ser excluída.")
+                    raise ValueError(_("The last list in an account cannot be deleted."))
             self._repositories.resolve(task_list.source).delete_list(task_list.id)
             if task_list.source != "local":
                 lists = [item for item in lists if item.id != task_list.id]
@@ -149,19 +150,19 @@ class TaskService:
     def _validate_title(title: str) -> str:
         title = title.strip()
         if not title or len(title) > 1024:
-            raise ValueError("O título deve ter entre 1 e 1024 caracteres.")
+            raise ValueError(_("The title must contain between 1 and 1024 characters."))
         return title
 
     def update_task(self, task_list: TaskList, task_id: str, title: str,
                     notes: str | None, due: str | None) -> Task:
         title = self._validate_title(title)
         if notes is not None and len(notes) > 8192:
-            raise ValueError("Os detalhes podem ter até 8192 caracteres.")
+            raise ValueError(_("Details can contain up to 8192 characters."))
         if due is not None:
             try:
                 due = date.fromisoformat(due).isoformat()
             except (ValueError, TypeError):
-                raise ValueError("Escolha uma data válida.") from None
+                raise ValueError(_("Choose a valid date.")) from None
         with self._list_lock(task_list):
             updated = self._repositories.resolve(task_list.source).update_task(
                 task_list.id, task_id, title, notes, due
@@ -188,7 +189,7 @@ class TaskService:
 
     def move_task(self, task_list: TaskList, task_id: str, destination: TaskList) -> Task:
         if destination.source != task_list.source or destination.id == task_list.id:
-            raise ValueError("Escolha outra lista da mesma conta ou deste dispositivo.")
+            raise ValueError(_("Choose another list from the same account or this device."))
         with self._source_lock(task_list.source), ExitStack() as stack:
             for item in sorted((task_list, destination), key=lambda item: item.id):
                 stack.enter_context(self._list_lock(item))

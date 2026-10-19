@@ -23,6 +23,17 @@ flatpak run io.github.rafatosta.gtasks
 
 O GitHub Actions executa os testes e constrói um Flatpak de desenvolvimento. Não publica releases. A integração GOA e as permissões ainda precisam de verificação com uma conta Google real no Fedora.
 
+## Idioma da interface
+
+A interface acompanha o idioma do sistema. O código usa inglês americano como
+origem, com tradução em português brasileiro no catálogo `po/pt_BR.po`. Quando
+não existe tradução para o idioma escolhido, o aplicativo mostra o texto em
+inglês. As datas seguem a configuração regional do sistema.
+
+Os nomes e textos das tarefas e listas permanecem como foram digitados. O idioma
+do corretor ortográfico é uma preferência separada. Instruções para atualizar e
+testar traduções estão em [Internacionalização](docs/04-internacionalizacao.md).
+
 ## Opções das tarefas
 
 No menu **⋮** de cada tarefa é possível:

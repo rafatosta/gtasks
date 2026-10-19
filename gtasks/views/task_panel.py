@@ -8,6 +8,7 @@ gi.require_version("Adw", "1")
 
 from gi.repository import Adw, Gio, GLib, Gtk
 
+from gtasks.i18n import _
 from gtasks.models.task import Task
 from gtasks.models.task_list import TaskList
 from gtasks.views.spellcheck import attach_entry_spellcheck
@@ -38,7 +39,7 @@ class TaskPanel(Gtk.Box):
         add_row.set_margin_start(6)
         add_row.set_margin_end(6)
         self._entry = Gtk.Entry(
-            placeholder_text="Adicionar uma tarefa", hexpand=True
+            placeholder_text=_("Add a task"), hexpand=True
         )
         attach_entry_spellcheck(self._entry, settings)
         self._entry.set_width_chars(1)
@@ -46,7 +47,7 @@ class TaskPanel(Gtk.Box):
         add_row.append(self._entry)
 
         self._add_button = Gtk.Button(icon_name="list-add-symbolic")
-        self._add_button.set_tooltip_text("Adicionar tarefa")
+        self._add_button.set_tooltip_text(_("Add Task"))
         self._add_button.connect("clicked", self._submit_task)
         add_row.append(self._add_button)
         self.append(add_row)
@@ -65,7 +66,7 @@ class TaskPanel(Gtk.Box):
         scroll.set_child(list_content)
 
         self._empty_page = Adw.StatusPage(
-            icon_name="view-list-symbolic", title="Crie uma lista para começar"
+            icon_name="view-list-symbolic", title=_("Create a List to Get Started")
         )
         self._empty_page.add_css_class("compact")
         self._content_stack = Gtk.Stack(vexpand=True)
@@ -92,11 +93,11 @@ class TaskPanel(Gtk.Box):
         self._content_stack.set_visible_child_name("empty")
 
     def show_tasks(
-        self, tasks: list[Task], empty_message: str = "Esta lista não tem tarefas"
+        self, tasks: list[Task], empty_message: str | None = None
     ) -> None:
         self._tasks = list(tasks)
         self._clear_rows()
-        self._empty_page.set_title(empty_message)
+        self._empty_page.set_title(empty_message if empty_message is not None else _("This List Has No Tasks"))
         self._content_stack.set_visible_child_name("tasks" if tasks else "empty")
         # Keep cached children next to their parent without relying on fetch order.
         children: dict[str | None, list[Task]] = {}
@@ -120,16 +121,16 @@ class TaskPanel(Gtk.Box):
             subtitle = []
             if task.parent:
                 parent = by_id.get(task.parent)
-                subtitle.append("Subtarefa" + (f" de {parent.title}" if parent else ""))
+                subtitle.append(_("Subtask of {title}").format(title=parent.title) if parent else _("Subtask"))
             if task.due:
-                subtitle.append("Data: " + date.fromisoformat(task.due).strftime("%d/%m/%Y"))
+                subtitle.append(_("Date: {date}").format(date=date.fromisoformat(task.due).strftime("%x")))
             if task.notes:
                 subtitle.append(task.notes.replace("\n", " "))
             row.set_subtitle(" · ".join(subtitle))
             row.set_subtitle_lines(2)
             check = Gtk.CheckButton(active=task.completed)
             check.set_valign(Gtk.Align.CENTER)
-            check.set_tooltip_text("Marcar como pendente" if task.completed else "Concluir tarefa")
+            check.set_tooltip_text(_("Mark as Incomplete") if task.completed else _("Complete Task"))
             check.update_property([Gtk.AccessibleProperty.LABEL], [task.title])
             check.connect("toggled", self._task_toggled, task.id)
             check.set_margin_start(min(depth, 2) * 12)
@@ -139,13 +140,13 @@ class TaskPanel(Gtk.Box):
             if self._on_task_action is not None:
                 menu = Gtk.MenuButton(icon_name="view-more-symbolic", valign=Gtk.Align.CENTER)
                 menu.add_css_class("flat")
-                menu.set_tooltip_text(f"Opções de {task.title}")
+                menu.set_tooltip_text(_("Options for {name}").format(name=task.title))
                 popup = Gtk.Popover()
                 actions = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=4)
-                for label, action in (("Editar detalhes e data", "edit"),
-                                      ("Adicionar subtarefa", "subtask"),
-                                      ("Mover para outra lista", "move"),
-                                      ("Excluir tarefa", "delete")):
+                for label, action in ((_("Edit Details and Date"), "edit"),
+                                      (_("Add Subtask"), "subtask"),
+                                      (_("Move to Another List"), "move"),
+                                      (_("Delete Task"), "delete")):
                     button = Gtk.Button(label=label)
                     button.add_css_class("flat")
                     if action == "delete":

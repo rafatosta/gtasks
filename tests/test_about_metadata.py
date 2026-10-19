@@ -9,7 +9,7 @@ ROOT = Path(__file__).resolve().parents[1]
 class AboutMetadataTest(unittest.TestCase):
     def test_appstream_has_about_details(self):
         xml = ET.parse(
-            ROOT / "data" / "io.github.rafatosta.gtasks.metainfo.xml"
+            ROOT / "data" / "io.github.rafatosta.gtasks.metainfo.xml.in"
         ).getroot()
 
         self.assertEqual(xml.findtext("id"), "io.github.rafatosta.gtasks")

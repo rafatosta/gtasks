@@ -11,6 +11,9 @@ dependency('libspelling-1', version: '>= 0.4.10')
 pkgdatadir = get_option('prefix') / get_option('datadir') / 'gtasks'
 conf = configuration_data()
 conf.set('PKGDATADIR', pkgdatadir)
+conf.set('LOCALEDIR', get_option('prefix') / get_option('localedir'))
+i18n = import('i18n')
+subdir('po')
 
 configure_file(
   input: 'gtasks.in',

@@ -1,5 +1,6 @@
 from collections.abc import Callable
 
+from gtasks.i18n import _
 from gtasks.models.task_list import TaskList
 from gtasks.repositories.base import TaskRepository
 from gtasks.repositories.cache import RemoteTaskCache
@@ -49,7 +50,7 @@ class RepositoryRegistry:
         try:
             return self._sources[source]
         except KeyError:
-            raise ValueError(f"Data source unavailable: {source}") from None
+            raise ValueError(_("Data source unavailable: {source}").format(source=source)) from None
 
     def list_lists(self) -> list[TaskList]:
         lists = self.resolve("local").list_lists()

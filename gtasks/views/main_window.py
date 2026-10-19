@@ -5,6 +5,7 @@ gi.require_version("Adw", "1")
 
 from gi.repository import Adw, Gio, GLib, Gtk
 
+from gtasks.i18n import _
 from gtasks.controllers.task_controller import TaskController
 from gtasks.models.task import Task
 from gtasks.models.task_list import TaskList
@@ -52,17 +53,17 @@ class MainWindow(Adw.ApplicationWindow):
         header = Adw.HeaderBar()
 
         main_menu = Gio.Menu()
-        main_menu.append("Preferências", "app.preferences")
-        main_menu.append("Atalhos de teclado", "app.shortcuts")
-        main_menu.append("Sobre o GTasks", "app.about")
-        main_menu.append("Sair", "app.quit")
+        main_menu.append(_("Preferences"), "app.preferences")
+        main_menu.append(_("Keyboard Shortcuts"), "app.shortcuts")
+        main_menu.append(_("About GTasks"), "app.about")
+        main_menu.append(_("Quit"), "app.quit")
         menu_button = Gtk.MenuButton(icon_name="open-menu-symbolic")
-        menu_button.set_tooltip_text("Menu principal (F10)")
+        menu_button.set_tooltip_text(_("Main Menu (F10)"))
         menu_button.set_primary(True)
         menu_button.set_menu_model(main_menu)
         header.pack_start(menu_button)
         refresh_button = Gtk.Button(icon_name="view-refresh-symbolic")
-        refresh_button.set_tooltip_text("Atualizar listas e tarefas")
+        refresh_button.set_tooltip_text(_("Refresh Lists and Tasks"))
         refresh_button.set_action_name("win.refresh")
         header.pack_end(refresh_button)
         sidebar_toolbar.add_top_bar(header)
@@ -81,7 +82,7 @@ class MainWindow(Adw.ApplicationWindow):
         )
 
         sidebar_toolbar.set_content(self._sidebar)
-        sidebar_page = Adw.NavigationPage.new(sidebar_toolbar, "Listas")
+        sidebar_page = Adw.NavigationPage.new(sidebar_toolbar, _("Lists"))
         sidebar_page.add_css_class("sidebar")
 
         content_toolbar = Adw.ToolbarView()
@@ -92,7 +93,7 @@ class MainWindow(Adw.ApplicationWindow):
         clamp = Adw.Clamp(maximum_size=720, tightening_threshold=480)
         clamp.set_child(self._task_panel)
         content_toolbar.set_content(clamp)
-        self._content_page = Adw.NavigationPage.new(content_toolbar, "Tarefas")
+        self._content_page = Adw.NavigationPage.new(content_toolbar, _("Tasks"))
 
         self._split_view = Adw.NavigationSplitView(
             min_sidebar_width=260, max_sidebar_width=320,
@@ -190,10 +191,12 @@ class MainWindow(Adw.ApplicationWindow):
                 return
             if on_error is not None:
                 on_error()
-            if isinstance(error, (ValueError, RuntimeError, KeyError)):
+            if isinstance(error, KeyError):
+                self._show_error(_("The list or task is no longer available."))
+            elif isinstance(error, (ValueError, RuntimeError)):
                 self._show_error(str(error))
             else:
-                self._show_error("Não foi possível concluir a operação.")
+                self._show_error(_("The operation could not be completed."))
 
         submit(succeeded, failed)
 
@@ -223,7 +226,7 @@ class MainWindow(Adw.ApplicationWindow):
         self._request(
             self._controller.discover_remote_async,
             found,
-            "Procurando contas Google...",
+            _("Looking for Google accounts…"),
         )
 
     def _sync_account(self, source: str) -> None:
@@ -243,23 +246,23 @@ class MainWindow(Adw.ApplicationWindow):
         def failed(error: Exception) -> None:
             self._show_error(
                 str(error) if isinstance(error, RuntimeError)
-                else "Não foi possível sincronizar a conta."
+                else _("The account could not be synchronized.")
             )
             selected = self._controller.selected_list
             if (selected is not None and selected.source == source
                     and self._controller.cached_tasks(selected) is None):
-                self._task_panel.show_message("Sem conexão e sem tarefas em cache.")
+                self._task_panel.show_message(_("Offline with no cached tasks."))
 
         self._controller.sync_account_async(source, progress, completed, failed)
 
     def _show_create_list_dialog(self, source: str) -> None:
-        dialog = Adw.AlertDialog.new("Nova lista", "Escolha um nome para a lista.")
-        entry = Gtk.Entry(text="Nova lista")
+        dialog = Adw.AlertDialog.new(_("New List"), _("Choose a name for the list."))
+        entry = Gtk.Entry(text=_("New List"))
         attach_entry_spellcheck(entry, self._settings)
         entry.select_region(0, -1)
         dialog.set_extra_child(entry)
-        dialog.add_response("cancel", "Cancelar")
-        dialog.add_response("create", "Criar")
+        dialog.add_response("cancel", _("Cancel"))
+        dialog.add_response("create", _("Create"))
         dialog.set_response_appearance("create", Adw.ResponseAppearance.SUGGESTED)
         dialog.set_default_response("create")
         dialog.set_close_response("cancel")
@@ -280,17 +283,17 @@ class MainWindow(Adw.ApplicationWindow):
                 name, source, success, error
             ),
             lambda _created: self._after_create_list(),
-            "Criando lista...",
+            _("Creating list…"),
         )
 
     def _show_edit_list_dialog(self, task_list: TaskList) -> None:
-        dialog = Adw.AlertDialog.new("Editar lista", "Altere o nome da lista.")
+        dialog = Adw.AlertDialog.new(_("Edit List"), _("Change the name of the list."))
         entry = Gtk.Entry(text=task_list.name)
         attach_entry_spellcheck(entry, self._settings)
         entry.select_region(0, -1)
         dialog.set_extra_child(entry)
-        dialog.add_response("cancel", "Cancelar")
-        dialog.add_response("save", "Salvar")
+        dialog.add_response("cancel", _("Cancel"))
+        dialog.add_response("save", _("Save"))
         dialog.set_response_appearance("save", Adw.ResponseAppearance.SUGGESTED)
         dialog.set_default_response("save")
         dialog.set_close_response("cancel")
@@ -306,7 +309,7 @@ class MainWindow(Adw.ApplicationWindow):
                         task_list, entry.get_text(), success, error
                     ),
                     lambda _updated: self._refresh_lists(),
-                    "Salvando lista...",
+                    _("Saving list…"),
                 )
 
         dialog.connect("response", responded)
@@ -314,12 +317,11 @@ class MainWindow(Adw.ApplicationWindow):
 
     def _show_delete_list_dialog(self, task_list: TaskList) -> None:
         dialog = Adw.AlertDialog.new(
-            "Excluir lista?",
-            f'A lista “{task_list.name}” e todas as suas tarefas serão excluídas. '
-            "Essa ação não pode ser desfeita.",
+            _("Delete List?"),
+            _("The list “{name}” and all its tasks will be deleted. This cannot be undone.").format(name=task_list.name),
         )
-        dialog.add_response("cancel", "Cancelar")
-        dialog.add_response("delete", "Excluir")
+        dialog.add_response("cancel", _("Cancel"))
+        dialog.add_response("delete", _("Delete"))
         dialog.set_response_appearance("delete", Adw.ResponseAppearance.DESTRUCTIVE)
         dialog.set_default_response("cancel")
         dialog.set_close_response("cancel")
@@ -339,7 +341,7 @@ class MainWindow(Adw.ApplicationWindow):
                         task_list, success, error
                     ),
                     deleted,
-                    "Excluindo lista...",
+                    _("Deleting list…"),
                 )
 
         dialog.connect("response", responded)
@@ -385,7 +387,7 @@ class MainWindow(Adw.ApplicationWindow):
                 selected, title, success, error
             ),
             created,
-            "Salvando tarefa...",
+            _("Saving task…"),
             on_error=failed,
         )
 
@@ -403,12 +405,12 @@ class MainWindow(Adw.ApplicationWindow):
                 )
             create_task_editor(task, save, self._settings).present(self)
         elif action == "delete":
-            description = f'A tarefa “{task.title}” e suas subtarefas serão excluídas.'
+            description = _("The task “{title}” and its subtasks will be deleted.").format(title=task.title)
             if task.assigned:
-                description += " Isso também exclui a tarefa no documento ou espaço de origem do Google."
-            dialog = Adw.AlertDialog.new("Excluir tarefa?", description)
-            dialog.add_response("cancel", "Cancelar")
-            dialog.add_response("delete", "Excluir")
+                description += " " + _("This also deletes the task in the original Google document or space.")
+            dialog = Adw.AlertDialog.new(_("Delete Task?"), description)
+            dialog.add_response("cancel", _("Cancel"))
+            dialog.add_response("delete", _("Delete"))
             dialog.set_response_appearance("delete", Adw.ResponseAppearance.DESTRUCTIVE)
             dialog.set_default_response("cancel")
             dialog.set_close_response("cancel")
@@ -417,18 +419,18 @@ class MainWindow(Adw.ApplicationWindow):
                     self._request(
                         lambda success, error: self._controller.delete_task_async(
                             selected, task.id, success, error
-                        ), lambda _result: self._refresh_tasks(), "Excluindo tarefa...",
+                        ), lambda _result: self._refresh_tasks(), _("Deleting task…"),
                     )
             dialog.connect("response", delete)
             dialog.present(self)
         elif action == "subtask":
-            dialog = Adw.AlertDialog.new("Adicionar subtarefa", f'Em “{task.title}”.')
-            entry = Gtk.Entry(placeholder_text="Título da subtarefa", activates_default=True)
+            dialog = Adw.AlertDialog.new(_("Add Subtask"), _("In “{title}”.").format(title=task.title))
+            entry = Gtk.Entry(placeholder_text=_("Subtask Title"), activates_default=True)
             attach_entry_spellcheck(entry, self._settings)
             entry.set_max_length(1024)
             dialog.set_extra_child(entry)
-            dialog.add_response("cancel", "Cancelar")
-            dialog.add_response("create", "Adicionar")
+            dialog.add_response("cancel", _("Cancel"))
+            dialog.add_response("create", _("Add"))
             dialog.set_response_appearance("create", Adw.ResponseAppearance.SUGGESTED)
             dialog.set_default_response("create")
             dialog.set_close_response("cancel")
@@ -441,7 +443,7 @@ class MainWindow(Adw.ApplicationWindow):
                     self._request(
                         lambda success, error: self._controller.create_subtask_async(
                             selected, task.id, entry.get_text(), success, error
-                        ), lambda _result: self._refresh_tasks(), "Criando subtarefa...",
+                        ), lambda _result: self._refresh_tasks(), _("Creating subtask…"),
                     )
             dialog.connect("response", create)
             dialog.present(self)
@@ -449,15 +451,15 @@ class MainWindow(Adw.ApplicationWindow):
             lists = [item for item in self._controller.get_lists()
                      if item.source == selected.source and item.id != selected.id]
             if not lists:
-                self._show_error("Crie outra lista nesta conta ou dispositivo para mover a tarefa.")
+                self._show_error(_("Create another list in this account or on this device to move the task."))
                 return
-            dialog = Adw.AlertDialog.new("Mover tarefa", "Escolha uma lista da mesma conta ou dispositivo.")
+            dialog = Adw.AlertDialog.new(_("Move Task"), _("Choose a list from the same account or device."))
             group = Adw.PreferencesGroup()
-            choice = Adw.ComboRow(title="Lista", model=Gtk.StringList.new([item.name for item in lists]))
+            choice = Adw.ComboRow(title=_("List"), model=Gtk.StringList.new([item.name for item in lists]))
             group.add(choice)
             dialog.set_extra_child(group)
-            dialog.add_response("cancel", "Cancelar")
-            dialog.add_response("move", "Mover")
+            dialog.add_response("cancel", _("Cancel"))
+            dialog.add_response("move", _("Move"))
             dialog.set_response_appearance("move", Adw.ResponseAppearance.SUGGESTED)
             dialog.set_default_response("move")
             dialog.set_close_response("cancel")
@@ -466,7 +468,7 @@ class MainWindow(Adw.ApplicationWindow):
                     self._request(
                         lambda success, error: self._controller.move_task_async(
                             selected, task.id, lists[choice.get_selected()], success, error
-                        ), lambda _result: self._refresh_tasks(), "Movendo tarefa...",
+                        ), lambda _result: self._refresh_tasks(), _("Moving task…"),
                     )
             dialog.connect("response", move)
             dialog.present(self)
@@ -485,25 +487,25 @@ class MainWindow(Adw.ApplicationWindow):
                 selected, task_id, completed, success, error
             ),
             lambda _task: self._refresh_tasks(),
-            "Atualizando tarefa...",
+            _("Updating task…"),
             on_error=failed,
         )
 
     def _refresh_tasks(self) -> None:
         selected = self._controller.selected_list
         self._task_panel.set_list(selected)
-        title = selected.name if selected else "Tarefas"
+        title = selected.name if selected else _("Tasks")
         self._content_page.set_title(title)
         self._content_title.set_title(title)
         self._content_title.set_subtitle(
-            "Neste dispositivo" if selected and selected.source == "local"
+            _("On This Device") if selected and selected.source == "local"
             else "Google Tasks" if selected else ""
         )
         if selected is None:
             self._split_view.set_show_content(False)
             self._task_panel.show_message(
-                "Selecione uma lista para ver as tarefas"
-                if self._controller.get_lists() else "Crie uma lista para começar"
+                _("Select a List to View Tasks")
+                if self._controller.get_lists() else _("Create a List to Get Started")
             )
             return
 
@@ -515,11 +517,11 @@ class MainWindow(Adw.ApplicationWindow):
             else:
                 self._task_panel.show_tasks(
                     [task for task in cached if not task.completed],
-                    empty_message="Nenhuma tarefa pendente",
+                    empty_message=_("No Pending Tasks"),
                 )
         elif self._controller.is_syncing(selected.source):
-            self._task_panel.show_message("Sincronizando tarefas...")
+            self._task_panel.show_message(_("Synchronizing tasks…"))
         else:
             self._task_panel.show_message(
-                "Nenhuma cópia local disponível. Atualize para sincronizar."
+                _("No local copy is available. Refresh to synchronize.")
             )
