@@ -5,3 +5,4 @@ from dataclasses import dataclass
 class TaskList:
     id: str
     name: str
+    source: str = "local"

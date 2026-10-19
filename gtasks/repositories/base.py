@@ -16,3 +16,7 @@ class TaskRepository(Protocol):
     def create_task(self, list_id: str, title: str) -> Task: ...
 
     def set_completed(self, list_id: str, task_id: str, completed: bool) -> Task: ...
+
+
+class TaskDataSource(TaskListRepository, TaskRepository, Protocol):
+    """Backend implementing both list and task operations."""

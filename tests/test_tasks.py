@@ -1,18 +1,22 @@
+import tempfile
 import unittest
+from pathlib import Path
 
 from gtasks.controllers.task_controller import TaskController
 from gtasks.repositories.memory import InMemoryTaskRepository
+from gtasks.repositories.sqlite import SQLiteTaskRepository
 from gtasks.services.task_service import TaskService
 
 
 class TasksTest(unittest.TestCase):
     def setUp(self) -> None:
         repository = InMemoryTaskRepository()
-        self.controller = TaskController(TaskService(lists=repository, tasks=repository))
+        self.controller = TaskController(TaskService({"local": repository}))
 
     def test_creating_list_starts_empty(self) -> None:
         task_list = self.controller.create_list("Trabalho")
         self.assertEqual(task_list.name, "Trabalho")
+        self.assertEqual(task_list.source, "local")
         self.assertEqual(self.controller.get_tasks(), [])
 
     def test_tasks_belong_to_their_list(self) -> None:
@@ -38,6 +42,33 @@ class TasksTest(unittest.TestCase):
         self.controller.create_list("Válida")
         with self.assertRaises(ValueError):
             self.controller.create_task("   ")
+
+    def test_sync_source_is_not_available_yet(self) -> None:
+        self.assertFalse(self.controller.has_source("google"))
+        with self.assertRaises(ValueError):
+            self.controller.create_list("Remota", "google")
+
+    def test_sqlite_persists_lists_and_tasks(self) -> None:
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / "tasks.db"
+            first = TaskController(TaskService({"local": SQLiteTaskRepository(path)}))
+            task_list = first.create_list("Pessoal")
+            task = first.create_task("Comprar pão")
+            first.set_completed(task.id, True)
+
+            reopened = TaskController(TaskService({"local": SQLiteTaskRepository(path)}))
+            reopened.select_list(task_list.id)
+            self.assertEqual(reopened.get_lists(), [task_list])
+            self.assertEqual(reopened.get_tasks()[0].title, task.title)
+            self.assertTrue(reopened.get_tasks()[0].completed)
+
+    def test_list_sources_can_coexist(self) -> None:
+        local = InMemoryTaskRepository()
+        google = InMemoryTaskRepository()
+        service = TaskService({"local": local, "google": google})
+        google.create_list("Remota")
+        self.assertEqual(len(service.get_lists()), 2 if local.list_lists() else 1)
+        self.assertTrue(service.has_source("google"))
 
 
 if __name__ == "__main__":
