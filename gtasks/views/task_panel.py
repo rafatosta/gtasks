@@ -3,8 +3,9 @@ from collections.abc import Callable
 import gi
 
 gi.require_version("Gtk", "4.0")
+gi.require_version("Adw", "1")
 
-from gi.repository import Gtk, Pango
+from gi.repository import Adw, Gtk, Pango
 
 from gtasks.models.task import Task
 from gtasks.models.task_list import TaskList
@@ -82,27 +83,17 @@ class TaskPanel(Gtk.Box):
         self._clear_rows()
         self._empty_label.set_label(empty_message)
         for task in tasks:
-            row = Gtk.ListBoxRow()
-            box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=12)
-            box.set_margin_top(10)
-            box.set_margin_bottom(10)
-            box.set_margin_start(12)
-            box.set_margin_end(12)
-
+            row = Adw.ActionRow(use_markup=False, title_lines=0)
+            row.set_title(task.title)
             check = Gtk.CheckButton(active=task.completed)
-            check.set_valign(Gtk.Align.START)
+            check.set_valign(Gtk.Align.CENTER)
             check.set_tooltip_text("Marcar como pendente" if task.completed else "Concluir tarefa")
             check.update_property([Gtk.AccessibleProperty.LABEL], [task.title])
             check.connect("toggled", self._task_toggled, task.id)
-            box.append(check)
-
-            title = Gtk.Label(label=task.title, xalign=0, hexpand=True, wrap=True)
-            title.set_wrap_mode(Pango.WrapMode.WORD_CHAR)
-            title.set_max_width_chars(1)
+            row.add_prefix(check)
+            row.set_activatable_widget(check)
             if task.completed:
-                title.add_css_class("dim-label")
-            box.append(title)
-            row.set_child(box)
+                row.add_css_class("dim-label")
             self._list_box.append(row)
 
     def restore_tasks(self) -> None:

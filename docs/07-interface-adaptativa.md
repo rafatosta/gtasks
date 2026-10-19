@@ -26,6 +26,9 @@ A interface agora usa os componentes nativos da libadwaita:
   permanecerem visíveis no modo estreito. Os diálogos de criação e edição
   desabilitam a confirmação quando o nome está vazio. A exclusão mantém a
   confirmação destrutiva e a proteção da última lista de uma conta.
+- As tarefas usam `Adw.ActionRow` com caixa de seleção como prefixo e widget
+  ativável: altura, espaçamento e estados de interação vêm da libadwaita. A linha
+  inteira permite alternar a conclusão. Títulos são texto literal, sem markup.
 - As caixas de seleção têm nomes acessíveis associados aos títulos das tarefas.
   Os controles usam os estilos, ícones e tamanhos nativos do tema.
 
