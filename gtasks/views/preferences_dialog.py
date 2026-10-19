@@ -72,6 +72,15 @@ def create_preferences_dialog(settings: Gio.Settings) -> Adw.PreferencesDialog:
     )
     display_group.add(restore)
 
+    spelling_group = Adw.PreferencesGroup(title="Escrita")
+    spelling = Adw.SwitchRow(
+        title="Verificar ortografia",
+        subtitle="Destacar palavras e oferecer sugestões no campo Detalhes",
+    )
+    settings.bind("spell-check-enabled", spelling, "active", Gio.SettingsBindFlags.DEFAULT)
+    spelling_group.add(spelling)
+    page.add(spelling_group)
+
     offline_group = Adw.PreferencesGroup(
         title="Armazenamento",
         description=(

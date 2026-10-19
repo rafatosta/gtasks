@@ -63,6 +63,21 @@ quando aplicável. O vínculo entre subtarefas é preservado na sincronização 
 cache. Estrelas, anexos, horários e recorrência não são simulados como campos
 editáveis da API. A data representa o dia programado, não um prazo com horário.
 
+## Correção ortográfica
+
+O `Gtk.TextView` dos detalhes usa `GtkSource.Buffer` e
+`Spelling.TextBufferAdapter`, com sublinhado e menu de correções nativos. O menu
+oferece sugestões, idioma e ações sobre o dicionário. Um gesto de contexto atualiza
+a posição da palavra antes de abrir as sugestões, conforme o exemplo oficial da
+libspelling 0.4. A classe `inline` preserva a aparência do cartão.
+
+A verificação e o idioma são persistidos com GSettings; a preferência de escrita
+controla a mesma opção oferecida pelo menu de contexto. A escolha inicial é
+`pt_BR`, com o padrão do provedor como alternativa se o dicionário não estiver
+instalado. Não há substituição automática nem envio do texto a um serviço remoto.
+O escopo atual é o campo Detalhes; os campos de título mantêm seus componentes
+originais.
+
 ## Validação
 
 Foram abertas janelas com dados temporários e preferências em memória nas

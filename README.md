@@ -47,6 +47,25 @@ somente para leitura; a confirmação de exclusão informa o efeito na origem.
 Referências: [campos de tarefas](https://developers.google.com/workspace/tasks/reference/rest/v1/tasks)
 e [movimentação entre listas](https://developers.google.com/workspace/tasks/reference/rest/v1/tasks/move).
 
+## Correção ortográfica
+
+O campo **Detalhes**, no editor da tarefa, destaca palavras com possíveis erros.
+Use o botão direito para ver sugestões, ignorar palavras, adicionar ao dicionário
+pessoal ou escolher outro idioma. O corretor começa em **português brasileiro**,
+quando esse dicionário está disponível, e funciona sem conexão. O texto só muda
+quando uma sugestão é escolhida.
+
+Em **Preferências → Escrita → Verificar ortografia**, é possível ativar ou
+desativar a verificação. Essa escolha e o idioma do menu são salvos. O corretor
+não se aplica aos campos de título ou de inclusão rápida de tarefas nesta versão.
+
+A integração usa GtkSourceView 5 e libspelling 0.4.10. O manifesto Flatpak inclui
+a libspelling; os dicionários vêm dos idiomas instalados do runtime GNOME. Em uma
+instalação nativa, instale também o dicionário desejado (por exemplo,
+`hunspell-pt-BR` no Fedora). Sem o dicionário selecionado, o corretor usa o padrão
+disponível no sistema. A compilação do Flatpak com essa dependência ainda precisa
+ser validada; a integração foi testada na instalação nativa.
+
 ## Atalhos de teclado
 
 Abra **Menu principal → Atalhos de teclado** para consultar os atalhos.

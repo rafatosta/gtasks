@@ -5,6 +5,8 @@ project('gtasks',
 
 dependency('gtk4')
 dependency('libadwaita-1', version: '>= 1.8')
+dependency('gtksourceview-5', version: '>= 5.10')
+dependency('libspelling-1', version: '>= 0.4.10')
 
 pkgdatadir = get_option('prefix') / get_option('datadir') / 'gtasks'
 conf = configuration_data()

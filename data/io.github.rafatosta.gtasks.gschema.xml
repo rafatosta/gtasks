@@ -17,6 +17,14 @@
       <default>true</default>
       <summary>Restore the previously selected list</summary>
     </key>
+    <key name="spell-check-enabled" type="b">
+      <default>true</default>
+      <summary>Check spelling in task details</summary>
+    </key>
+    <key name="spelling-language" type="s">
+      <default>'pt_BR'</default>
+      <summary>Dictionary used for spelling suggestions</summary>
+    </key>
     <key name="last-source" type="s">
       <default>''</default>
       <summary>Source of the last selected list</summary>

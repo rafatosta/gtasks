@@ -6,12 +6,15 @@ import gi
 
 gi.require_version("Adw", "1")
 gi.require_version("Gtk", "4.0")
-from gi.repository import Adw, GLib, Gtk
+from gi.repository import Adw, Gio, GLib, Gtk
 
 from gtasks.models.task import Task
+from gtasks.views.spellcheck import create_details_view
 
 
-def create_task_editor(task: Task, on_save: Callable) -> Adw.Dialog:
+def create_task_editor(
+    task: Task, on_save: Callable, settings: Gio.Settings | None = None
+) -> Adw.Dialog:
     dialog = Adw.Dialog(title="Editar tarefa", content_width=440, content_height=550)
     toolbar = Adw.ToolbarView()
     header = Adw.HeaderBar(show_start_title_buttons=False, show_end_title_buttons=False)
@@ -31,13 +34,10 @@ def create_task_editor(task: Task, on_save: Callable) -> Adw.Dialog:
     group.add(title)
     body.append(group)
 
-    details_group = Adw.PreferencesGroup(title="Detalhes")
-    notes = Gtk.TextView(wrap_mode=Gtk.WrapMode.WORD_CHAR,
-                         top_margin=12, bottom_margin=12,
-                         left_margin=12, right_margin=12)
-    # Follow the surrounding card instead of painting a square view background.
-    notes.add_css_class("inline")
-    notes.get_buffer().set_text(task.notes)
+    details_group = Adw.PreferencesGroup(
+        title="Detalhes", description="Use o botão direito para ver sugestões e escolher o idioma."
+    )
+    notes = create_details_view(task.notes, settings)
     notes.set_sensitive(not task.assigned)
     if task.assigned:
         details_group.set_description("Os detalhes desta tarefa são gerenciados pelo Google.")

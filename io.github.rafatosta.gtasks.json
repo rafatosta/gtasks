@@ -13,6 +13,24 @@
   ],
   "modules": [
     {
+      "name": "libspelling",
+      "buildsystem": "meson",
+      "config-opts": [
+        "-Ddocs=false",
+        "-Dvapi=false",
+        "-Dsysprof=false",
+        "-Dintrospection=enabled"
+      ],
+      "sources": [
+        {
+          "type": "git",
+          "url": "https://gitlab.gnome.org/GNOME/libspelling.git",
+          "tag": "0.4.10",
+          "commit": "1facdde8e1c0fd72bed806f9a9be2fbec83af5f2"
+        }
+      ]
+    },
+    {
       "name": "gtasks",
       "buildsystem": "meson",
       "sources": [

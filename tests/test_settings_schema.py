@@ -21,6 +21,8 @@ class SettingsSchemaTest(unittest.TestCase):
         self.assertEqual(keys["sync-interval"], ("i", "15"))
         self.assertEqual(keys["show-completed"], ("b", "true"))
         self.assertEqual(keys["restore-last-list"], ("b", "true"))
+        self.assertEqual(keys["spell-check-enabled"], ("b", "true"))
+        self.assertEqual(keys["spelling-language"], ("s", "'pt_BR'"))
         self.assertEqual(keys["last-source"], ("s", "''"))
         self.assertEqual(keys["last-list-id"], ("s", "''"))
 

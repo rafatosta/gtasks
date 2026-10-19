@@ -397,7 +397,7 @@ class MainWindow(Adw.ApplicationWindow):
                 self._controller.update_task_async(
                     selected, task.id, title, notes, due, saved, error
                 )
-            create_task_editor(task, save).present(self)
+            create_task_editor(task, save, self._settings).present(self)
         elif action == "delete":
             description = f'A tarefa “{task.title}” e suas subtarefas serão excluídas.'
             if task.assigned:
