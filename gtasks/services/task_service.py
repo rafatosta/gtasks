@@ -64,10 +64,14 @@ class TaskService:
 
     def delete_list(self, task_list: TaskList) -> None:
         with self._source_lock(task_list.source), self._list_lock(task_list):
+            if task_list.source != "local":
+                # Check the account itself: the cached index may be out of date.
+                lists = self.load_remote_lists(task_list.source)
+                if len(lists) <= 1:
+                    raise ValueError("A última lista da conta não pode ser excluída.")
             self._repositories.resolve(task_list.source).delete_list(task_list.id)
             if task_list.source != "local":
-                lists = [item for item in self._repositories.remote_lists(task_list.source)
-                         if item.id != task_list.id]
+                lists = [item for item in lists if item.id != task_list.id]
                 self.cache_remote_lists(task_list.source, lists)
 
     def cached_tasks(self, task_list: TaskList) -> list[Task] | None:

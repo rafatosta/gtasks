@@ -84,6 +84,9 @@ class SourceListGroup(Gtk.Box):
                                     ("Excluir lista", self._on_delete)):
                 button = Gtk.Button(label=title)
                 button.add_css_class("flat")
+                if title == "Excluir lista" and self.source_id != "local" and len(lists) <= 1:
+                    button.set_sensitive(False)
+                    button.set_tooltip_text("A última lista da conta não pode ser excluída.")
                 def activate(_button, item=task_list, action=callback, popup=popover):
                     popup.popdown()
                     action(item)

@@ -133,15 +133,16 @@ class OfflineCacheTest(unittest.TestCase):
             self.assertEqual(remote.list_lists(), [renamed])
             self.assertEqual(self.cache.lists("google:a"), [renamed])
             self.assertEqual(self.cache.tasks(renamed), [task])
+            remaining = remote.create_list("Remaining")
             worker.submit(service.delete_list, renamed).result()
             worker.submit(service.sync_source, "google:a", lambda _item: None).result()
 
-        self.assertEqual(remote.list_lists(), [])
-        self.assertEqual(self.cache.lists("google:a"), [])
+        self.assertEqual(remote.list_lists(), [remaining])
+        self.assertEqual(self.cache.lists("google:a"), [remaining])
         self.assertIsNone(self.cache.tasks(original))
         self.assertEqual(self.cache.lists("google:b"), [untouched])
         self.assertEqual(self.local.list_lists(), [local_list])
-        self.assertEqual(service.get_lists(), [local_list, untouched])
+        self.assertEqual(service.get_lists(), [local_list, remaining, untouched])
 
     def test_cache_for_removed_account_is_cleared(self):
         remote = InMemoryTaskRepository("google:a")

@@ -40,14 +40,43 @@ class ListManagementTest(unittest.TestCase):
             updated = service.rename_list(item, "Novo")
             self.assertEqual(cache.lists(item.source), [updated])
             self.assertEqual(cache.tasks(updated), [task])
+            remaining = remote.create_list("Outra lista")
             with patch.object(remote, "delete_list", side_effect=RuntimeError("offline")):
                 with self.assertRaises(RuntimeError):
                     service.delete_list(updated)
             self.assertEqual(cache.lists(item.source), [updated])
             service.delete_list(updated)
-            self.assertEqual(service.get_lists(), [])
-            self.assertEqual(cache.lists(item.source), [])
+            self.assertEqual(service.get_lists(), [remaining])
+            self.assertEqual(cache.lists(item.source), [remaining])
             self.assertIsNone(cache.tasks(updated))
+
+    def test_last_remote_list_cannot_be_deleted_even_with_stale_cache(self):
+        remote = InMemoryTaskRepository("google:a")
+        other = InMemoryTaskRepository("google:b")
+        registry = RepositoryRegistry({"local": InMemoryTaskRepository(),
+                                       "google:a": remote, "google:b": other})
+        service = TaskService(registry)
+        item = service.create_list("Única", "google:a")
+        stale = service.create_list("Removida fora do app", "google:a")
+        service.create_list("Outra conta", "google:b")
+        service.create_list("Local")
+        remote.delete_list(stale.id)
+        with patch.object(remote, "delete_list", wraps=remote.delete_list) as delete:
+            with self.assertRaisesRegex(ValueError, "última lista"):
+                service.delete_list(item)
+            delete.assert_not_called()
+        self.assertEqual(remote.list_lists(), [item])
+
+    def test_deleting_one_of_two_lists_protects_remaining_list(self):
+        remote = InMemoryTaskRepository("google:a")
+        service = TaskService(RepositoryRegistry({"local": InMemoryTaskRepository(),
+                                                 "google:a": remote}))
+        first = service.create_list("Primeira", "google:a")
+        second = service.create_list("Segunda", "google:a")
+        service.delete_list(first)
+        with self.assertRaisesRegex(ValueError, "última lista"):
+            service.delete_list(second)
+        self.assertEqual(service.get_lists(), [second])
 
     def test_empty_rename_is_rejected(self):
         service = TaskService(RepositoryRegistry({"local": InMemoryTaskRepository()}))
