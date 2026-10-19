@@ -128,3 +128,22 @@ português. A compilação/instalação dos arquivos `po/meson.build` e
 `data/meson.build` foi validada em um projeto Meson isolado. A interface foi
 verificada nos dois idiomas, em larguras de 360 e 900 pixels. Isso não substitui
 uma compilação integral do Flatpak.
+
+## 8. Traduções no bundle independente
+
+O artefato `gtasks.flatpak` do GitHub Actions é distribuído como um arquivo único.
+O manifesto de desenvolvimento define `separate-locales: false` para manter os
+catálogos em `/app/share/locale` dentro desse próprio arquivo. Sem essa opção,
+o flatpak-builder separa as traduções em uma extensão `.Locale`, que não acompanha
+a instalação de um bundle contendo apenas o aplicativo.
+
+O CI verifica depois da construção que o catálogo `pt_BR/LC_MESSAGES/gtasks.mo`
+está presente no pacote principal, não é um link para uma extensão separada e
+traduz `Save` para `Salvar`. Isso complementa os testes do catálogo nas fontes.
+A correção exige construir e instalar um novo bundle; não altera arquivos
+`.flatpak` já baixados.
+
+A configuração foi verificada com a construção e exportação de um Flatpak mínimo
+local: o catálogo permaneceu como arquivo regular no pacote principal e sua
+tradução foi lida com sucesso. Esse teste não recompilou o GTasks completo nem
+substituiu a instalação existente do usuário.

@@ -31,3 +31,16 @@ jobs:
           flatpak build build-dir
           gsettings --schemadir /app/share/glib-2.0/schemas
           list-keys io.github.rafatosta.gtasks
+
+      - name: Verify bundled Brazilian Portuguese translation
+        run: |
+          flatpak build build-dir python3 - <<'PY'
+          import gettext
+          from pathlib import Path
+
+          catalog = Path('/app/share/locale/pt_BR/LC_MESSAGES/gtasks.mo')
+          assert catalog.is_file(), 'Portuguese catalog is missing from the application bundle'
+          assert not catalog.is_symlink(), 'Translations must be included in the standalone bundle'
+          translation = gettext.translation('gtasks', '/app/share/locale', languages=['pt_BR'])
+          assert translation.gettext('Save') == 'Salvar'
+          PY

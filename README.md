@@ -25,6 +25,9 @@ O GitHub Actions executa os testes e constrói um Flatpak de desenvolvimento. N�
 
 ## Idioma da interface
 
+O arquivo `.flatpak` distribuído pelo GitHub inclui os catálogos de tradução
+no próprio pacote, sem depender de uma extensão `.Locale` separada.
+
 A interface acompanha o idioma do sistema. O código usa inglês americano como
 origem, com tradução em português brasileiro no catálogo `po/pt_BR.po`. Quando
 não existe tradução para o idioma escolhido, o aplicativo mostra o texto em

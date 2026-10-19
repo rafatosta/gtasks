@@ -1,5 +1,6 @@
 import ast
 import gettext
+import json
 import os
 import shutil
 import subprocess
@@ -81,3 +82,10 @@ class InternationalizationTest(unittest.TestCase):
                     "-d", str(ROOT / "po"), "-o", str(output)], check=True)
                 self.assertIn("Tarefas para GNOME", output.read_text())
                 self.assertIn("Tasks for GNOME", output.read_text())
+
+
+class StandaloneBundleTest(unittest.TestCase):
+    def test_translations_are_kept_in_the_single_file_bundle(self):
+        manifest = json.loads((ROOT / 'io.github.rafatosta.gtasks.json').read_text())
+        self.assertIs(manifest.get('separate-locales'), False,
+                      'The GitHub bundle must not require a separate .Locale extension')
