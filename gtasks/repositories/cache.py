@@ -13,6 +13,8 @@ class RemoteTaskCache:
         path.parent.mkdir(parents=True, exist_ok=True)
         self._path = path
         with closing(self._connect()) as db:
+            # Readers remain responsive while a large account snapshot is written.
+            db.execute("PRAGMA journal_mode = WAL")
             with db:
                 db.executescript(
                     """
