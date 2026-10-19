@@ -3,7 +3,7 @@ import gi
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 
-from gi.repository import Adw, Gtk
+from gi.repository import Adw, Gio, Gtk
 
 from gtasks.controllers.task_controller import TaskController
 from gtasks.models.task import Task
@@ -24,6 +24,13 @@ class MainWindow(Adw.ApplicationWindow):
 
         toolbar = Adw.ToolbarView()
         header = Adw.HeaderBar()
+
+        main_menu = Gio.Menu()
+        main_menu.append("Sobre o GTasks", "app.about")
+        menu_button = Gtk.MenuButton(icon_name="open-menu-symbolic")
+        menu_button.set_tooltip_text("Menu principal")
+        menu_button.set_menu_model(main_menu)
+        header.pack_start(menu_button)
         refresh_button = Gtk.Button(icon_name="view-refresh-symbolic")
         refresh_button.set_tooltip_text("Atualizar listas e tarefas")
         refresh_button.connect("clicked", self._refresh_google)

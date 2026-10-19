@@ -6,7 +6,7 @@ import gi
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 
-from gi.repository import Adw, Gio, GLib
+from gi.repository import Adw, Gio, GLib, Gtk
 
 from gtasks.auth.goa import GoaAuthProvider
 from gtasks.controllers.task_controller import TaskController
@@ -19,6 +19,7 @@ from gtasks.views.main_window import MainWindow
 
 
 class GTasksApplication(Adw.Application):
+    VERSION = "0.1.0"
     def __init__(self) -> None:
         super().__init__(
             application_id="io.github.rafatosta.gtasks",
@@ -29,6 +30,10 @@ class GTasksApplication(Adw.Application):
         storage = SQLiteTaskRepository(database)
         cache = RemoteTaskCache(database)
         auth = GoaAuthProvider()
+
+        about_action = Gio.SimpleAction.new("about", None)
+        about_action.connect("activate", self._show_about)
+        self.add_action(about_action)
 
         def discover():
             return [
@@ -52,3 +57,22 @@ class GTasksApplication(Adw.Application):
         if window is None:
             window = MainWindow(application=self, controller=self._controller)
         window.present()
+
+    def _show_about(self, _action: Gio.SimpleAction, _parameter) -> None:
+        window = self.props.active_window
+        if window is None:
+            return
+
+        dialog = Adw.AboutDialog(
+            application_name="GTasks",
+            application_icon="io.github.rafatosta.gtasks",
+            developer_name="Rafael Tosta",
+            version=self.VERSION,
+            comments="Gerenciador de tarefas para GNOME com listas locais e Google Tasks.",
+            copyright="© 2026 Rafael Tosta",
+            website="https://github.com/rafatosta/gtasks",
+            issue_url="https://github.com/rafatosta/gtasks/issues",
+            license_type=Gtk.License.GPL_3_0,
+            developers=["Rafael Tosta"],
+        )
+        dialog.present(window)
