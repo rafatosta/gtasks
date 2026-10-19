@@ -34,6 +34,22 @@ A interface agora usa os componentes nativos da libadwaita:
 - As caixas de seleção têm nomes acessíveis associados aos títulos das tarefas.
   Os controles usam os estilos, ícones e tamanhos nativos do tema.
 
+## Contornos, sombras e estados vazios
+
+As listas de tarefas usam `Gtk.ListBox` com `boxed-list` e linhas
+`Adw.ActionRow`, os componentes nativos da libadwaita. A área de rolagem contém
+uma caixa com margens internas de 6px: isso evita recortar o contorno e a sombra
+do cartão quando ele toca os limites do viewport. As margens externas da janela
+não substituem esse espaço dentro da área que faz o recorte.
+
+O campo multilinha de detalhes usa `Gtk.TextView` com a classe oficial `inline`
+dentro de um cartão. Assim, o fundo retangular do editor não cobre os cantos
+arredondados do cartão. Bordas, sombras e cores continuam a cargo do tema.
+
+O estado sem tarefas usa `Adw.StatusPage` em uma página separada, sem uma lista
+vazia com aparência de cartão. O mesmo componente comunica estados de ausência
+de seleção, carregamento ou indisponibilidade de cópia local.
+
 ## Opções por tarefa
 
 O menu de cada linha oferece edição de título, detalhes e data, criação de
@@ -63,4 +79,5 @@ fatores de escala distintos; esses cenários não foram validados nesta alteraç
 
 - [Scaling & Adaptiveness — GNOME HIG](https://developer.gnome.org/hig/guidelines/adaptive.html)
 - [Sidebars — GNOME HIG](https://developer.gnome.org/hig/patterns/nav/sidebars.html)
+- [Classes de estilo da libadwaita](https://gnome.pages.gitlab.gnome.org/libadwaita/doc/1.9/style-classes.html)
 - [Adw.NavigationSplitView](https://gnome.pages.gitlab.gnome.org/libadwaita/doc/main/class.NavigationSplitView.html)

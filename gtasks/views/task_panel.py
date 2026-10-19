@@ -6,7 +6,7 @@ import gi
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 
-from gi.repository import Adw, GLib, Gtk, Pango
+from gi.repository import Adw, GLib, Gtk
 
 from gtasks.models.task import Task
 from gtasks.models.task_list import TaskList
@@ -29,10 +29,12 @@ class TaskPanel(Gtk.Box):
         self.set_hexpand(True)
         self.set_margin_top(24)
         self.set_margin_bottom(24)
-        self.set_margin_start(24)
-        self.set_margin_end(24)
+        self.set_margin_start(18)
+        self.set_margin_end(18)
 
         add_row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
+        add_row.set_margin_start(6)
+        add_row.set_margin_end(6)
         self._entry = Gtk.Entry(
             placeholder_text="Adicionar uma tarefa", hexpand=True
         )
@@ -50,18 +52,24 @@ class TaskPanel(Gtk.Box):
         self._list_box.set_selection_mode(Gtk.SelectionMode.NONE)
         self._list_box.set_valign(Gtk.Align.START)
         self._list_box.add_css_class("boxed-list")
-        self._empty_label = Gtk.Label(
-            label="Crie uma lista para começar", wrap=True,
-            wrap_mode=Pango.WrapMode.WORD_CHAR, justify=Gtk.Justification.CENTER,
-        )
-        self._empty_label.add_css_class("dim-label")
-        self._empty_label.set_margin_top(40)
-        self._list_box.set_placeholder(self._empty_label)
-
+        # Keep the card's border and shadow inside the scrollable viewport.
+        list_content = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        for side in ("top", "bottom", "start", "end"):
+            getattr(list_content, f"set_margin_{side}")(6)
+        list_content.append(self._list_box)
         scroll = Gtk.ScrolledWindow(vexpand=True)
         scroll.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
-        scroll.set_child(self._list_box)
-        self.append(scroll)
+        scroll.set_child(list_content)
+
+        self._empty_page = Adw.StatusPage(
+            icon_name="view-list-symbolic", title="Crie uma lista para começar"
+        )
+        self._empty_page.add_css_class("compact")
+        self._content_stack = Gtk.Stack(vexpand=True)
+        self._content_stack.add_named(scroll, "tasks")
+        self._content_stack.add_named(self._empty_page, "empty")
+        self._content_stack.set_visible_child_name("empty")
+        self.append(self._content_stack)
         self.set_input_enabled(False)
 
     def set_list(self, task_list: TaskList | None) -> None:
@@ -77,14 +85,16 @@ class TaskPanel(Gtk.Box):
     def show_message(self, message: str) -> None:
         self._tasks = []
         self._clear_rows()
-        self._empty_label.set_label(message)
+        self._empty_page.set_title(message)
+        self._content_stack.set_visible_child_name("empty")
 
     def show_tasks(
         self, tasks: list[Task], empty_message: str = "Esta lista não tem tarefas"
     ) -> None:
         self._tasks = list(tasks)
         self._clear_rows()
-        self._empty_label.set_label(empty_message)
+        self._empty_page.set_title(empty_message)
+        self._content_stack.set_visible_child_name("tasks" if tasks else "empty")
         # Keep cached children next to their parent without relying on fetch order.
         children: dict[str | None, list[Task]] = {}
         by_id = {task.id: task for task in tasks}

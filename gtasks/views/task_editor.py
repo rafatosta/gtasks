@@ -35,6 +35,8 @@ def create_task_editor(task: Task, on_save: Callable) -> Adw.Dialog:
     notes = Gtk.TextView(wrap_mode=Gtk.WrapMode.WORD_CHAR,
                          top_margin=12, bottom_margin=12,
                          left_margin=12, right_margin=12)
+    # Follow the surrounding card instead of painting a square view background.
+    notes.add_css_class("inline")
     notes.get_buffer().set_text(task.notes)
     notes.set_sensitive(not task.assigned)
     if task.assigned:
