@@ -6,10 +6,11 @@ import gi
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 
-from gi.repository import Adw, GLib, Gtk
+from gi.repository import Adw, Gio, GLib, Gtk
 
 from gtasks.models.task import Task
 from gtasks.models.task_list import TaskList
+from gtasks.views.spellcheck import attach_entry_spellcheck
 
 
 class TaskPanel(Gtk.Box):
@@ -20,6 +21,7 @@ class TaskPanel(Gtk.Box):
         on_add_task: Callable[[str], None],
         on_toggle_task: Callable[[str, bool], None],
         on_task_action: Callable[[Task, str], None] | None = None,
+        settings: Gio.Settings | None = None,
     ) -> None:
         super().__init__(orientation=Gtk.Orientation.VERTICAL, spacing=16)
         self._on_task_action = on_task_action
@@ -38,6 +40,7 @@ class TaskPanel(Gtk.Box):
         self._entry = Gtk.Entry(
             placeholder_text="Adicionar uma tarefa", hexpand=True
         )
+        attach_entry_spellcheck(self._entry, settings)
         self._entry.set_width_chars(1)
         self._entry.connect("activate", self._submit_task)
         add_row.append(self._entry)

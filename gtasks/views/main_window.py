@@ -11,6 +11,7 @@ from gtasks.models.task_list import TaskList
 from gtasks.views.list_sidebar import ListSidebar
 from gtasks.views.task_panel import TaskPanel
 from gtasks.views.task_editor import create_task_editor
+from gtasks.views.spellcheck import attach_entry_spellcheck
 
 
 class MainWindow(Adw.ApplicationWindow):
@@ -76,6 +77,7 @@ class MainWindow(Adw.ApplicationWindow):
             on_add_task=self._add_task,
             on_toggle_task=self._toggle_task,
             on_task_action=self._task_action,
+            settings=self._settings,
         )
 
         sidebar_toolbar.set_content(self._sidebar)
@@ -253,6 +255,7 @@ class MainWindow(Adw.ApplicationWindow):
     def _show_create_list_dialog(self, source: str) -> None:
         dialog = Adw.AlertDialog.new("Nova lista", "Escolha um nome para a lista.")
         entry = Gtk.Entry(text="Nova lista")
+        attach_entry_spellcheck(entry, self._settings)
         entry.select_region(0, -1)
         dialog.set_extra_child(entry)
         dialog.add_response("cancel", "Cancelar")
@@ -283,6 +286,7 @@ class MainWindow(Adw.ApplicationWindow):
     def _show_edit_list_dialog(self, task_list: TaskList) -> None:
         dialog = Adw.AlertDialog.new("Editar lista", "Altere o nome da lista.")
         entry = Gtk.Entry(text=task_list.name)
+        attach_entry_spellcheck(entry, self._settings)
         entry.select_region(0, -1)
         dialog.set_extra_child(entry)
         dialog.add_response("cancel", "Cancelar")
@@ -420,6 +424,7 @@ class MainWindow(Adw.ApplicationWindow):
         elif action == "subtask":
             dialog = Adw.AlertDialog.new("Adicionar subtarefa", f'Em “{task.title}”.')
             entry = Gtk.Entry(placeholder_text="Título da subtarefa", activates_default=True)
+            attach_entry_spellcheck(entry, self._settings)
             entry.set_max_length(1024)
             dialog.set_extra_child(entry)
             dialog.add_response("cancel", "Cancelar")

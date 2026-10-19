@@ -75,7 +75,7 @@ def create_preferences_dialog(settings: Gio.Settings) -> Adw.PreferencesDialog:
     spelling_group = Adw.PreferencesGroup(title="Escrita")
     spelling = Adw.SwitchRow(
         title="Verificar ortografia",
-        subtitle="Destacar palavras e oferecer sugestões no campo Detalhes",
+        subtitle="Destacar palavras e oferecer sugestões nos campos de texto",
     )
     settings.bind("spell-check-enabled", spelling, "active", Gio.SettingsBindFlags.DEFAULT)
     spelling_group.add(spelling)

@@ -75,8 +75,22 @@ A verificação e o idioma são persistidos com GSettings; a preferência de esc
 controla a mesma opção oferecida pelo menu de contexto. A escolha inicial é
 `pt_BR`, com o padrão do provedor como alternativa se o dicionário não estiver
 instalado. Não há substituição automática nem envio do texto a um serviço remoto.
-O escopo atual é o campo Detalhes; os campos de título mantêm seus componentes
-originais.
+A correção também atende a todos os campos de uma linha: inclusão rápida de
+tarefas, títulos no editor, nomes de listas e títulos de subtarefas. Esses campos
+mantêm `Gtk.Entry` e `Adw.EntryRow`. Um buffer auxiliar da libspelling verifica o
+texto e fornece o menu nativo; os sublinhados são aplicados por atributos Pango ao
+`Gtk.Text` interno, preservando o desenho do componente. Os índices Pango usam
+bytes UTF-8, enquanto as seleções e os limites dos campos usam caracteres.
+
+As sugestões alteram apenas o trecho correspondente. Edições e ações de desfazer
+continuam sincronizadas com o buffer auxiliar. Uma sugestão maior que o limite de
+um campo não pode deixar esse buffer diferente do texto efetivamente aceito.
+Idioma e ativação são compartilhados em tempo real entre todos os campos.
+
+Os testes GTK opcionais cobrem os dois componentes de uma linha, acentos,
+sugestões, edição, desfazer, limites e preferências compartilhadas. Para executá-los
+em uma sessão gráfica com as dependências e o dicionário português instalados:
+`GTASKS_TEST_GTK=1 python3 -m unittest discover -s tests -p test_spellcheck_ui.py`.
 
 ## Validação
 

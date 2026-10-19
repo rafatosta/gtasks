@@ -49,15 +49,16 @@ e [movimentação entre listas](https://developers.google.com/workspace/tasks/re
 
 ## Correção ortográfica
 
-O campo **Detalhes**, no editor da tarefa, destaca palavras com possíveis erros.
+Todos os campos editáveis destacam palavras com possíveis erros: inclusão rápida
+de tarefas, títulos, detalhes, nomes de listas e títulos de subtarefas.
 Use o botão direito para ver sugestões, ignorar palavras, adicionar ao dicionário
 pessoal ou escolher outro idioma. O corretor começa em **português brasileiro**,
 quando esse dicionário está disponível, e funciona sem conexão. O texto só muda
 quando uma sugestão é escolhida.
 
 Em **Preferências → Escrita → Verificar ortografia**, é possível ativar ou
-desativar a verificação. Essa escolha e o idioma do menu são salvos. O corretor
-não se aplica aos campos de título ou de inclusão rápida de tarefas nesta versão.
+desativar a verificação. Essa escolha e o idioma do menu são salvos e compartilhados entre todos os
+campos abertos.
 
 A integração usa GtkSourceView 5 e libspelling 0.4.10. O manifesto Flatpak inclui
 a libspelling; os dicionários vêm dos idiomas instalados do runtime GNOME. Em uma

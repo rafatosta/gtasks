@@ -19,7 +19,7 @@
     </key>
     <key name="spell-check-enabled" type="b">
       <default>true</default>
-      <summary>Check spelling in task details</summary>
+      <summary>Check spelling in editable text fields</summary>
     </key>
     <key name="spelling-language" type="s">
       <default>'pt_BR'</default>

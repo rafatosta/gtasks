@@ -9,7 +9,7 @@ gi.require_version("Gtk", "4.0")
 from gi.repository import Adw, Gio, GLib, Gtk
 
 from gtasks.models.task import Task
-from gtasks.views.spellcheck import create_details_view
+from gtasks.views.spellcheck import attach_entry_spellcheck, create_details_view
 
 
 def create_task_editor(
@@ -31,6 +31,7 @@ def create_task_editor(
         getattr(body, f"set_margin_{side}")(18)
     group = Adw.PreferencesGroup()
     title = Adw.EntryRow(title="Título", text=task.title)
+    attach_entry_spellcheck(title, settings)
     group.add(title)
     body.append(group)
 
