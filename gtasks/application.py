@@ -18,6 +18,7 @@ from gtasks.services.task_service import TaskService
 from gtasks.views.main_window import MainWindow
 from gtasks.views.about_dialog import create_about_dialog
 from gtasks.views.preferences_dialog import create_preferences_dialog
+from gtasks.views.shortcuts_dialog import create_shortcuts_dialog
 
 
 class GTasksApplication(Adw.Application):
@@ -39,6 +40,18 @@ class GTasksApplication(Adw.Application):
         preferences_action.connect("activate", self._show_preferences)
         self.add_action(preferences_action)
         self.set_accels_for_action("app.preferences", ["<Primary>comma"])
+
+        quit_action = Gio.SimpleAction.new("quit", None)
+        quit_action.connect("activate", self._quit)
+        self.add_action(quit_action)
+        self.set_accels_for_action("app.quit", ["<Primary>q"])
+
+        shortcuts_action = Gio.SimpleAction.new("shortcuts", None)
+        shortcuts_action.connect("activate", self._show_shortcuts)
+        self.add_action(shortcuts_action)
+        self.set_accels_for_action("app.shortcuts", ["<Primary>question", "<Primary>F1"])
+        self.set_accels_for_action("win.close", ["<Primary>w"])
+        self.set_accels_for_action("win.refresh", ["<Primary>r", "F5"])
 
         about_action = Gio.SimpleAction.new("about", None)
         about_action.connect("activate", self._show_about)
@@ -80,3 +93,15 @@ class GTasksApplication(Adw.Application):
         window = self.props.active_window
         if window is not None:
             create_preferences_dialog(self._settings).present(window)
+
+    def _quit(self, _action: Gio.SimpleAction, _parameter) -> None:
+        # Close windows through their normal cleanup path before exiting.
+        for window in self.get_windows():
+            window.close()
+        self._controller.close()
+        self.quit()
+
+    def _show_shortcuts(self, _action: Gio.SimpleAction, _parameter) -> None:
+        window = self.props.active_window
+        if window is not None:
+            create_shortcuts_dialog().present(window)

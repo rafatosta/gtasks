@@ -23,6 +23,24 @@ flatpak run io.github.rafatosta.gtasks
 
 O GitHub Actions executa os testes e constrói um Flatpak de desenvolvimento. Não publica releases. A integração GOA e as permissões ainda precisam de verificação com uma conta Google real no Fedora.
 
+## Atalhos de teclado
+
+Abra **Menu principal → Atalhos de teclado** para consultar os atalhos.
+
+| Atalho | Ação |
+| --- | --- |
+| Ctrl+Q | Sair do aplicativo |
+| Ctrl+W | Fechar o diálogo aberto ou a janela |
+| Ctrl+, | Abrir preferências |
+| Ctrl+? ou Ctrl+F1 | Mostrar atalhos de teclado |
+| Ctrl+R ou F5 | Atualizar listas e tarefas |
+| F10 | Abrir o menu principal na página de listas |
+| Alt+← | Voltar às listas no modo estreito |
+| Esc | Fechar diálogo ou menu |
+
+A janela de atalhos usa `Adw.ShortcutsDialog`, disponível na libadwaita 1.8 ou
+mais recente (incluída no runtime GNOME 51 do projeto).
+
 ## Preferências
 
 Abra **Menu principal → Preferências** ou pressione **Ctrl+,**. O GTasks salva as escolhas com GSettings:

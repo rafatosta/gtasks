@@ -37,6 +37,12 @@ class MainWindow(Adw.ApplicationWindow):
         self._auto_sync_run = False
         self.set_default_size(900, 560)
         self.connect("close-request", self._on_close)
+        close_action = Gio.SimpleAction.new("close", None)
+        close_action.connect("activate", self._close_current)
+        self.add_action(close_action)
+        refresh_action = Gio.SimpleAction.new("refresh", None)
+        refresh_action.connect("activate", lambda *_: self._refresh_google(force=True))
+        self.add_action(refresh_action)
 
         # Breakpoints require an explicit minimum size; support phone-sized widths.
         self.set_size_request(360, 294)
@@ -45,14 +51,17 @@ class MainWindow(Adw.ApplicationWindow):
 
         main_menu = Gio.Menu()
         main_menu.append("Preferências", "app.preferences")
+        main_menu.append("Atalhos de teclado", "app.shortcuts")
         main_menu.append("Sobre o GTasks", "app.about")
+        main_menu.append("Sair", "app.quit")
         menu_button = Gtk.MenuButton(icon_name="open-menu-symbolic")
-        menu_button.set_tooltip_text("Menu principal")
+        menu_button.set_tooltip_text("Menu principal (F10)")
+        menu_button.set_primary(True)
         menu_button.set_menu_model(main_menu)
         header.pack_start(menu_button)
         refresh_button = Gtk.Button(icon_name="view-refresh-symbolic")
         refresh_button.set_tooltip_text("Atualizar listas e tarefas")
-        refresh_button.connect("clicked", self._refresh_google)
+        refresh_button.set_action_name("win.refresh")
         header.pack_end(refresh_button)
         sidebar_toolbar.add_top_bar(header)
 
@@ -99,7 +108,16 @@ class MainWindow(Adw.ApplicationWindow):
         self._refresh_google()
         self._configure_auto_sync()
 
+    def _close_current(self, _action, _parameter) -> None:
+        dialog = self.get_visible_dialog()
+        if dialog is not None:
+            dialog.close()
+        else:
+            self.close()
+
     def _on_close(self, _window: Adw.ApplicationWindow) -> bool:
+        if self._closed:
+            return False
         self._closed = True
         if self._sync_timer is not None:
             GLib.source_remove(self._sync_timer)
@@ -179,8 +197,10 @@ class MainWindow(Adw.ApplicationWindow):
         self._sidebar.set_status(message)
         self._toast_overlay.add_toast(Adw.Toast.new(message))
 
-    def _refresh_google(self, _button: Gtk.Button | None = None) -> None:
-        if _button is not None:
+    def _refresh_google(
+        self, _button: Gtk.Button | None = None, *, force: bool = False
+    ) -> None:
+        if _button is not None or force:
             self._auto_sync_run = True
         self._accounts_generation += 1
         generation = self._accounts_generation

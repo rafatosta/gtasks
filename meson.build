@@ -4,7 +4,7 @@ project('gtasks',
 )
 
 dependency('gtk4')
-dependency('libadwaita-1', version: '>= 1.5')
+dependency('libadwaita-1', version: '>= 1.8')
 
 pkgdatadir = get_option('prefix') / get_option('datadir') / 'gtasks'
 conf = configuration_data()
