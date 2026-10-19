@@ -8,13 +8,14 @@ from urllib.request import Request, urlopen
 from gtasks.models.google_account import GoogleAccount
 from gtasks.models.task import Task
 from gtasks.models.task_list import TaskList
+from gtasks.repositories.base import TaskRepository
 
 
 class GoogleTasksError(RuntimeError):
     pass
 
 
-class GoogleTasksRepository:
+class GoogleTasksRepository(TaskRepository):
     API = "https://tasks.googleapis.com/tasks/v1"
 
     def __init__(self, account: GoogleAccount, auth) -> None:

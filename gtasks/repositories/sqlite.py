@@ -4,9 +4,10 @@ from uuid import uuid4
 
 from gtasks.models.task import Task
 from gtasks.models.task_list import TaskList
+from gtasks.repositories.base import TaskRepository
 
 
-class SQLiteTaskRepository:
+class SQLiteTaskRepository(TaskRepository):
     """Persistent storage for lists and tasks saved on this device."""
 
     def __init__(self, path: Path) -> None:

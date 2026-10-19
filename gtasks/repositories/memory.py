@@ -3,9 +3,10 @@ from uuid import uuid4
 
 from gtasks.models.task import Task
 from gtasks.models.task_list import TaskList
+from gtasks.repositories.base import TaskRepository
 
 
-class InMemoryTaskRepository:
+class InMemoryTaskRepository(TaskRepository):
     """Temporary adapter: data exists only while the application is running."""
 
     def __init__(self, source: str = "local") -> None:
