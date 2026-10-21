@@ -52,6 +52,11 @@ when the dictionary is available on your system. Turn it on or off under
 
 ## Connect to Google Tasks
 
+Google Tasks integration is optional. It requires GNOME Online Accounts (GOA)
+to be installed and running on your host system; GOA is not included in the
+Flatpak. Without GOA, you can still create and manage local lists and tasks
+offline.
+
 GTasks uses Google accounts added to GNOME **Online Accounts**. You authorize
 access in your system settings; you do not need to enter your Google password
 in GTasks.

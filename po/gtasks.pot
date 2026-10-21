@@ -587,3 +587,47 @@ msgstr ""
 #: data/io.github.rafatosta.gtasks.gschema.xml:34
 msgid "Identifier of the last selected list"
 msgstr ""
+
+#: data/io.github.rafatosta.gtasks.metainfo.xml.in
+msgid "Organize your tasks, locally and with Google"
+msgstr ""
+
+#: data/io.github.rafatosta.gtasks.metainfo.xml.in
+msgid "Plan your day, organize projects, and keep track of what you have finished. GTasks brings local lists and Google Tasks together in an adaptive application for GNOME. Start with lists on your computer without needing a Google account."
+msgstr ""
+
+#: data/io.github.rafatosta.gtasks.metainfo.xml.in
+msgid "Create and organize lists for work, studies, shopping, and personal projects."
+msgstr ""
+
+#: data/io.github.rafatosta.gtasks.metainfo.xml.in
+msgid "Add notes and dates to tasks, and break them into smaller steps with subtasks."
+msgstr ""
+
+#: data/io.github.rafatosta.gtasks.metainfo.xml.in
+msgid "Complete or reopen tasks, show or hide completed items, and move tasks between lists in the same account or between local lists."
+msgstr ""
+
+#: data/io.github.rafatosta.gtasks.metainfo.xml.in
+msgid "Access multiple Google accounts configured in GNOME Online Accounts, with manual or automatic refresh."
+msgstr ""
+
+#: data/io.github.rafatosta.gtasks.metainfo.xml.in
+msgid "Check spelling in task titles, notes, and list names using dictionaries available on your system."
+msgstr ""
+
+#: data/io.github.rafatosta.gtasks.metainfo.xml.in
+msgid "Use a layout that adapts to narrow windows, with keyboard shortcuts for common actions."
+msgstr ""
+
+#: data/io.github.rafatosta.gtasks.metainfo.xml.in
+msgid "Local lists work fully offline and stay on your computer. Previously synchronized Google lists and tasks can be viewed offline; creating or changing Google items requires an internet connection. Local lists are not automatically uploaded to Google."
+msgstr ""
+
+#: data/io.github.rafatosta.gtasks.metainfo.xml.in
+msgid "Google Tasks integration is optional and requires GNOME Online Accounts (GOA) to be installed and running on your host system, with a Google account authorized for Google Tasks. GOA is not included in this Flatpak. Without GOA, you can still create and manage local lists and tasks offline."
+msgstr ""
+
+#: data/io.github.rafatosta.gtasks.desktop.in
+msgid "Tasks;Todo;To-do;Lists;Productivity;Google Tasks;"
+msgstr ""

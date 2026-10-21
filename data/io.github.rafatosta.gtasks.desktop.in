@@ -1,9 +1,10 @@
 [Desktop Entry]
 Type=Application
 Name=GTasks
-Comment=Tasks for GNOME
+Comment=Organize your tasks, locally and with Google
 Exec=gtasks
 Icon=io.github.rafatosta.gtasks
 Terminal=false
-Categories=Office;Utility;
+Categories=Office;ProjectManagement;
+Keywords=Tasks;Todo;To-do;Lists;Productivity;Google Tasks;
 StartupNotify=true

@@ -54,6 +54,23 @@ Referências:
 - [Flathub — Requirements e política de IA](https://docs.flathub.org/docs/for-app-authors/requirements)
 - [Flathub — Submission](https://docs.flathub.org/docs/for-app-authors/submission)
 
+### Dependência do host para Google Tasks
+
+A integração com Google Tasks usa o serviço de sessão D-Bus
+`org.gnome.OnlineAccounts`, fornecido pelo GNOME Online Accounts (GOA) no host.
+O Flatpak permite acesso a esse serviço, mas não o inclui. Uma conta Google
+precisa estar configurada e autorizada no GOA. As listas e tarefas locais têm
+armazenamento próprio e não dependem desse serviço.
+
+Essa separação oferece funcionalidade local sem Google, mas não comprova, por
+si só, conformidade com as regras sobre aplicações dependentes do host ou de
+ambientes específicos. Antes da submissão, verificar o Flatpak em uma sessão
+sem GOA e em outro ambiente gráfico: inicialização, criação e edição de listas
+e tarefas locais, persistência e tratamento da indisponibilidade da integração
+Google. Verificar também a integração em um host com GOA autorizado.
+Esses cenários continuam pendentes de comprovação para a submissão; a decisão
+de inclusão cabe aos revisores do Flathub, caso a caso.
+
 ## 3. Critérios internos de qualidade
 
 As seguintes validações devem fazer parte do desenvolvimento:

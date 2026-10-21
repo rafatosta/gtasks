@@ -1,12 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright 2026 Rafael Tosta -->
 <component type="desktop-application">
   <id>io.github.rafatosta.gtasks</id>
   <name>GTasks</name>
-  <summary>Tasks for GNOME</summary>
+  <summary>Organize your tasks, locally and with Google</summary>
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>GPL-3.0-or-later</project_license>
   <description>
-    <p>Manage local and Google Tasks lists in one native GNOME application. Previously synchronized tasks can be viewed offline.</p>
+    <p>Plan your day, organize projects, and keep track of what you have finished. GTasks brings local lists and Google Tasks together in an adaptive application for GNOME. Start with lists on your computer without needing a Google account.</p>
+    <ul>
+      <li>Create and organize lists for work, studies, shopping, and personal projects.</li>
+      <li>Add notes and dates to tasks, and break them into smaller steps with subtasks.</li>
+      <li>Complete or reopen tasks, show or hide completed items, and move tasks between lists in the same account or between local lists.</li>
+      <li>Access multiple Google accounts configured in GNOME Online Accounts, with manual or automatic refresh.</li>
+      <li>Check spelling in task titles, notes, and list names using dictionaries available on your system.</li>
+      <li>Use a layout that adapts to narrow windows, with keyboard shortcuts for common actions.</li>
+    </ul>
+    <p>Local lists work fully offline and stay on your computer. Previously synchronized Google lists and tasks can be viewed offline; creating or changing Google items requires an internet connection. Local lists are not automatically uploaded to Google.</p>
+    <p>Google Tasks integration is optional and requires GNOME Online Accounts (GOA) to be installed and running on your host system, with a Google account authorized for Google Tasks. GOA is not included in this Flatpak. Without GOA, you can still create and manage local lists and tasks offline.</p>
   </description>
   <launchable type="desktop-id">io.github.rafatosta.gtasks.desktop</launchable>
   <developer id="io.github.rafatosta">
@@ -14,6 +25,19 @@
   </developer>
   <url type="homepage">https://github.com/rafatosta/gtasks</url>
   <url type="bugtracker">https://github.com/rafatosta/gtasks/issues</url>
+  <url type="vcs-browser">https://github.com/rafatosta/gtasks</url>
+  <url type="help">https://github.com/rafatosta/gtasks#readme</url>
+  <url type="contribute">https://github.com/rafatosta/gtasks/blob/main/docs/08-desenvolvimento.md</url>
+  <translation type="gettext">gtasks</translation>
+  <content_rating type="oars-1.1"/>
+  <branding>
+    <color type="primary" scheme_preference="light">#33d17a</color>
+    <color type="primary" scheme_preference="dark">#26a269</color>
+  </branding>
+  <supports>
+    <control>keyboard</control>
+    <control>pointing</control>
+  </supports>
   <screenshots>
     <screenshot type="default">
       <caption>Organize local tasks and Google Tasks lists</caption>

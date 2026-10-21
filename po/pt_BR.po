@@ -596,3 +596,47 @@ msgstr "Origem da última lista selecionada"
 #: data/io.github.rafatosta.gtasks.gschema.xml:34
 msgid "Identifier of the last selected list"
 msgstr "Identificador da última lista selecionada"
+
+#: data/io.github.rafatosta.gtasks.metainfo.xml.in
+msgid "Organize your tasks, locally and with Google"
+msgstr "Organize suas tarefas, localmente e com o Google"
+
+#: data/io.github.rafatosta.gtasks.metainfo.xml.in
+msgid "Plan your day, organize projects, and keep track of what you have finished. GTasks brings local lists and Google Tasks together in an adaptive application for GNOME. Start with lists on your computer without needing a Google account."
+msgstr "Planeje seu dia, organize projetos e acompanhe o que você já concluiu. O GTasks reúne listas locais e o Google Tasks em um aplicativo adaptável para GNOME. Comece com listas no seu computador sem precisar de uma conta Google."
+
+#: data/io.github.rafatosta.gtasks.metainfo.xml.in
+msgid "Create and organize lists for work, studies, shopping, and personal projects."
+msgstr "Crie e organize listas para trabalho, estudos, compras e projetos pessoais."
+
+#: data/io.github.rafatosta.gtasks.metainfo.xml.in
+msgid "Add notes and dates to tasks, and break them into smaller steps with subtasks."
+msgstr "Adicione notas e datas às tarefas e divida-as em etapas menores com subtarefas."
+
+#: data/io.github.rafatosta.gtasks.metainfo.xml.in
+msgid "Complete or reopen tasks, show or hide completed items, and move tasks between lists in the same account or between local lists."
+msgstr "Conclua ou reabra tarefas, mostre ou oculte itens concluídos e mova tarefas entre listas da mesma conta ou entre listas locais."
+
+#: data/io.github.rafatosta.gtasks.metainfo.xml.in
+msgid "Access multiple Google accounts configured in GNOME Online Accounts, with manual or automatic refresh."
+msgstr "Acesse várias contas Google configuradas nas Contas Online do GNOME, com atualização manual ou automática."
+
+#: data/io.github.rafatosta.gtasks.metainfo.xml.in
+msgid "Check spelling in task titles, notes, and list names using dictionaries available on your system."
+msgstr "Verifique a ortografia em títulos de tarefas, notas e nomes de listas usando os dicionários disponíveis no sistema."
+
+#: data/io.github.rafatosta.gtasks.metainfo.xml.in
+msgid "Use a layout that adapts to narrow windows, with keyboard shortcuts for common actions."
+msgstr "Use uma interface que se adapta a janelas estreitas, com atalhos de teclado para ações frequentes."
+
+#: data/io.github.rafatosta.gtasks.metainfo.xml.in
+msgid "Local lists work fully offline and stay on your computer. Previously synchronized Google lists and tasks can be viewed offline; creating or changing Google items requires an internet connection. Local lists are not automatically uploaded to Google."
+msgstr "As listas locais funcionam completamente offline e ficam no seu computador. Listas e tarefas Google sincronizadas anteriormente podem ser consultadas offline; criar ou alterar itens do Google exige conexão com a internet. As listas locais não são enviadas automaticamente ao Google."
+
+#: data/io.github.rafatosta.gtasks.metainfo.xml.in
+msgid "Google Tasks integration is optional and requires GNOME Online Accounts (GOA) to be installed and running on your host system, with a Google account authorized for Google Tasks. GOA is not included in this Flatpak. Without GOA, you can still create and manage local lists and tasks offline."
+msgstr "A integração com o Google Tasks é opcional e exige que as Contas Online do GNOME (GOA) estejam instaladas e em execução no sistema hospedeiro, com uma conta Google autorizada para o Google Tasks. O GOA não está incluído neste Flatpak. Sem o GOA, você ainda pode criar e gerenciar listas e tarefas locais offline."
+
+#: data/io.github.rafatosta.gtasks.desktop.in
+msgid "Tasks;Todo;To-do;Lists;Productivity;Google Tasks;"
+msgstr "Tarefas;Todo;A fazer;Listas;Produtividade;Google Tasks;"
