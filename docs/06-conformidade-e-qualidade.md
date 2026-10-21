@@ -45,8 +45,45 @@ O mantenedor pode usar ferramentas assistidas por IA como apoio à implementaç�
 
 1. Declarar materiais gerados ou assistidos por IA incorporados ao aplicativo ou ao empacotamento, identificando as partes e a extensão aproximada.
 2. Não incluir conteúdo gerado ou assistido por IA nos **manifestos submetidos ao Flathub**; a preparação do manifesto oficial é manual.
-3. Não automatizar por agente de IA a criação ou as interações da pull request de submissão ao Flathub.
+3. Realizar pessoalmente a submissão e as interações com os revisores. Não usar agentes para abrir ou automatizar a PR, nem para gerar suas mensagens de commit, descrição, comentários de revisão ou respostas. Não solicitar revisão por agentes de IA.
 4. Confirmar políticas atualizadas na data de publicação.
+
+#### Registro interno do uso conhecido de IA
+
+Este registro auxilia a auditoria do projeto upstream. Não é texto de PR ou de
+resposta para submissão. O mantenedor deve redigir pessoalmente a declaração
+com base no histórico completo e nos materiais efetivamente distribuídos.
+
+As decisões e a revisão humana permanecem sob responsabilidade do mantenedor.
+Isso não remove a origem assistida por IA nem substitui a declaração de escopo.
+A presença de ferramentas de IA no desenvolvimento não significa que o aplicativo
+ofereça funcionalidades de IA ao usuário.
+
+| Parte | Extensão conhecida nesta conversa |
+| --- | --- |
+| `data/io.github.rafatosta.gtasks.metainfo.xml.in` | Reescrita do resumo e da descrição, incluindo seis itens de funcionalidades e esclarecimento de GOA/offline; inclusão de links, classificação etária, identificação gettext, cores e controles suportados. |
+| `data/io.github.rafatosta.gtasks.desktop.in` | Alteração do comentário e das categorias; inclusão de palavras-chave. |
+| `po/gtasks.pot` e `po/pt_BR.po` | Inclusão de 11 entradas em cada catálogo para os novos metadados, com tradução brasileira assistida por IA; inclui o esclarecimento posterior sobre GOA. Não corresponde a uma estimativa da origem do restante dos catálogos. |
+| `README.md` | Inclusão de um parágrafo sobre a integração Google opcional e a dependência de GOA no host. |
+| `docs/06-conformidade-e-qualidade.md` | Inclusão da avaliação da dependência de GOA e deste registro; detalhamento das etapas manuais de submissão. |
+| Código, testes, ícone, capturas de tela, outros documentos e empacotamento anteriores | Origem e extensão não determinadas por esta conversa. Levantar o histórico anterior com o mantenedor; não presumir autoria exclusivamente humana nem inventar percentuais. |
+
+A extensão acima descreve as intervenções conhecidas, não a proporção total de IA
+no projeto. Antes de publicar, reconciliar este registro com as demais conversas,
+commits e ferramentas usadas, identificando também material que razoavelmente
+se acredite ter origem assistida por IA. Atualizar a contagem se os textos mudarem.
+
+O manifesto local `io.github.rafatosta.gtasks.json` não foi alterado nesta conversa.
+Isso não comprova a origem do seu conteúdo anterior. Antes de preparar o manifesto
+oficial, verificar sua procedência; copiar, digitar novamente ou apenas revisar
+um manifesto assistido por IA não permite declará-lo como livre dessa assistência.
+O manifesto oficial deve ser elaborado pelo mantenedor sem geração ou assistência
+de IA, respeitando a política vigente.
+
+Pesquisa, discussão e depuração sem incorporação de material gerado recebem
+tratamento distinto na política. As alterações de texto e tradução registradas
+acima foram incorporadas aos arquivos e devem entrar no levantamento de divulgação.
+A declaração não garante aceitação nem cria exceção para manifestos.
 
 Essas regras são obrigações externas de um canal de distribuição, não restrições arbitrárias de arquitetura do GTasks. A documentação técnica pode registrar decisões e apresentar origem e revisão de alterações para fins de auditabilidade.
 
