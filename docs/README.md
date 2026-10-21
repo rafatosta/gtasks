@@ -24,6 +24,7 @@ Para executar ou testar o código atual, comece pelo [guia de desenvolvimento](0
 | [06 — Conformidade e qualidade](06-conformidade-e-qualidade.md) | GNOME HIG/Circle, políticas Flathub, testes, auditoria e referências |
 | [07 — Interface adaptativa](07-interface-adaptativa.md) | Revisão de UX/UI, navegação responsiva, tamanhos e validação visual |
 | [08 — Desenvolvimento](08-desenvolvimento.md) | Dependências, execução, testes, capturas e notas de implementação |
+| [09 — Preparação para o Flathub](09-preparacao-flathub.md) | Evidências, pendências e etapas da submissão manual |
 
 ## Decisões consolidadas
 
