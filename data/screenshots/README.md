@@ -21,3 +21,16 @@ The helper captures only the demonstration window using its X11 window ID. It
 decodes the native premultiplied pixel format to PNG while retaining its alpha.
 Commit new images first, then update the immutable commit URLs in the metainfo.
 The referenced commit must be pushed to GitHub before publishing the package.
+
+## Demonstration video
+
+To record a 31-second English MP4 with the same isolated fictional data:
+
+```sh
+python3 tools/capture_screenshots.py --language en_US --video data/videos/gtasks-en_US.mp4
+```
+
+This also requires GStreamer with the Python GI bindings, `openh264enc`,
+`h264parse`, and `mp4mux`. The silent H.264 video includes English captions,
+adding a task, the task editor, subtasks, and the adaptive layout. Only the
+application window is captured and placed on a neutral background.

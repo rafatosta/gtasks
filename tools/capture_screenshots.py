@@ -17,7 +17,12 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--language', choices=('en_US', 'pt_BR'), required=True)
     parser.add_argument('--output', type=Path, default=ROOT / 'data/screenshots')
+    parser.add_argument('--video', type=Path, help='Record an MP4 demonstration instead of screenshots')
     args = parser.parse_args()
+    if args.video is not None:
+        if args.language != 'en_US':
+            parser.error('--video currently supports --language en_US')
+        os.environ['GSK_RENDERER'] = 'cairo'
     os.environ['LANGUAGE'] = args.language
     os.environ['LC_ALL'] = args.language + '.UTF-8'
     os.environ.setdefault('GDK_BACKEND', 'x11')
@@ -32,10 +37,10 @@ def main():
         schemas.mkdir()
         shutil.copy(ROOT / 'data/io.github.rafatosta.gtasks.gschema.xml', schemas)
         subprocess.run(['glib-compile-schemas', str(schemas)], check=True)
-        capture(args.language, args.output, temporary, schemas)
+        capture(args.language, args.output, temporary, schemas, args.video)
 
 
-def capture(language, output, temporary, schemas):
+def capture(language, output, temporary, schemas, video=None):
     import gi
     gi.require_version('Gtk', '4.0')
     gi.require_version('Adw', '1')
@@ -119,6 +124,12 @@ def capture(language, output, temporary, schemas):
     window._select_list(source, trip.id)
     window._refresh_lists()
     settle()
+    if video is not None:
+        from record_demo import record_demo
+        record_demo(window, tickets, source, trip, temporary, video)
+        window.close()
+        settle()
+        return
     save('tasks')
     window._task_action(tickets, 'edit')
     save('editor')
