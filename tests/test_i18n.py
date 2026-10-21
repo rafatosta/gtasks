@@ -80,8 +80,8 @@ class InternationalizationTest(unittest.TestCase):
                 subprocess.run(["msgfmt", "--" + kind,
                     "--template=" + str(ROOT / ("data/io.github.rafatosta.gtasks." + suffix + ".in")),
                     "-d", str(ROOT / "po"), "-o", str(output)], check=True)
-                self.assertIn("Tarefas para GNOME", output.read_text())
-                self.assertIn("Tasks for GNOME", output.read_text())
+                self.assertIn("Organize suas tarefas, localmente e com o Google", output.read_text())
+                self.assertIn("Organize your tasks, locally and with Google", output.read_text())
 
 
 class StandaloneBundleTest(unittest.TestCase):
