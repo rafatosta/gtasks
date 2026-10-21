@@ -631,3 +631,19 @@ msgstr ""
 #: data/io.github.rafatosta.gtasks.desktop.in
 msgid "Tasks;Todo;To-do;Lists;Productivity;Google Tasks;"
 msgstr ""
+
+#: data/io.github.rafatosta.gtasks.metainfo.xml.in
+msgid "First release of GTasks."
+msgstr ""
+
+#: data/io.github.rafatosta.gtasks.metainfo.xml.in
+msgid "Organize local lists and tasks offline, with notes, dates, and subtasks."
+msgstr ""
+
+#: data/io.github.rafatosta.gtasks.metainfo.xml.in
+msgid "Connect Google Tasks accounts through GNOME Online Accounts, with manual or automatic refresh."
+msgstr ""
+
+#: data/io.github.rafatosta.gtasks.metainfo.xml.in
+msgid "Use an adaptive interface with spell checking, keyboard shortcuts, and Brazilian Portuguese translations."
+msgstr ""

@@ -55,4 +55,16 @@
       <image type="source" xml:lang="pt-BR" width="940" height="1380">https://raw.githubusercontent.com/rafatosta/gtasks/e7c5ab49619a71b377aa87a0e63919590e89850c/data/screenshots/compact-pt_BR.png</image>
     </screenshot>
   </screenshots>
+  <releases>
+    <release version="0.1.0" date="2026-10-21" type="stable">
+      <description>
+        <p>First release of GTasks.</p>
+        <ul>
+          <li>Organize local lists and tasks offline, with notes, dates, and subtasks.</li>
+          <li>Connect Google Tasks accounts through GNOME Online Accounts, with manual or automatic refresh.</li>
+          <li>Use an adaptive interface with spell checking, keyboard shortcuts, and Brazilian Portuguese translations.</li>
+        </ul>
+      </description>
+    </release>
+  </releases>
 </component>
