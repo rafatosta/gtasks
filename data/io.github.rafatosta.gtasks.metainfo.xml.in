@@ -3,7 +3,7 @@
 <component type="desktop-application">
   <id>io.github.rafatosta.gtasks</id>
   <name>GTasks</name>
-  <summary>Organize your tasks, locally and with Google</summary>
+  <summary>Organize local and Google tasks</summary>
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>GPL-3.0-or-later</project_license>
   <description>
